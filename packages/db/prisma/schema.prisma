@@ -15,7 +15,50 @@ datasource db {
 }
 
 model User {
-  id    Int    @id @default(autoincrement())
-  name  String @db.VarChar(255)
-  email String @unique @db.VarChar(255)
+  id                Int                 @id @default(autoincrement())
+  email             String?             @unique
+  name              String?
+  number            String              @unique
+  password          String
+  OnRampTransaction OnRampTransaction[]
+  Balance           Balance[]
+  sentTransfers     P2PTransfer[]       @relation(name: "FromUserRelation")
+  receivedTransfers P2PTransfer[]       @relation(name: "ToUserRelation")
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+}
+
+model P2PTransfer {
+  id         Int      @id @default(autoincrement())
+  amount     Int
+  timestamp  DateTime
+  fromUserId Int
+  fromUser   User     @relation(name: "FromUserRelation", fields: [fromUserId], references: [id])
+  toUserId   Int
+  toUser     User     @relation(name: "ToUserRelation", fields: [toUserId], references: [id])
+}
+
+model OnRampTransaction {
+  id         Int      @id @default(autoincrement())
+  userId     Int
+  token      String
+  amount     Int
+  proccesing Status
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  user       User     @relation(fields: [userId], references: [id])
+}
+
+model Balance {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  amount    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id]) // relation to User
+}
+
+enum Status {
+  PROCESSING
+  SUCCESS
 }
