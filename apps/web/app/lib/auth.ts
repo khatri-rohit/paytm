@@ -1,66 +1,74 @@
 import CredentialsProvider from 'next-auth/providers/credentials';
+import { prisma } from '@repo/db';
 
 type User = {
-    id: string; // Add the required 'id' field
-    name?: string;
-    email?: string;
+    id: string;
     number: string;
+    name: string | null;
     password: string;
-};
+    email: string | null;
+    createdAt: Date;
+    updatedAt: Date;
+} | any;
 
 
 export const authOptions = {
     providers: [
         CredentialsProvider({
-            name: 'signup',
+            name: 'credentials',
             credentials: {
-                name: { label: 'name', type: 'text', placeholder: '' },
-                email: { label: 'email', type: 'text', placeholder: '' },
-                number: { label: 'number', type: 'text', placeholder: '' },
-                password: { label: 'password', type: 'password', placeholder: '' }
+                number: { label: 'number', type: 'text', placeholder: 'xxxxxxxxxx' },
+                password: { label: 'password', type: 'password', placeholder: '********' }
             },
-            async authorize(credentials: Record<"name" | "email" | "number" | "password", string> | undefined): Promise<User | null> {
-                console.log("New user");
+            async authorize(credentials: Record<any, string> | undefined): Promise<User | null> {
                 if (!credentials) {
                     return null; // or handle the case when credentials are undefined
                 }
-
-                const { name, email, number, password } = credentials;
                 console.log(credentials);
-                return {
-                    id: "user1",
-                    name,
-                    email,
-                    number,
-                    password
-                };
-            },
-        }),
-        CredentialsProvider({
-            name: 'signin',
-            credentials: {
-                number: { label: 'number', type: 'text', placeholder: '' },
-                password: { label: 'password', type: 'password', placeholder: '' }
-            },
-            async authorize(credentials: Record<"number" | "password", string> | undefined): Promise<User | null> {
-                console.log("Existing user");
-                if (!credentials) {
-                    return null; // or handle the case when credentials are undefined
-                }
-
                 const { number, password } = credentials;
-                console.log(credentials);
-                return {
-                    id: "user1",
-                    number,
-                    password
-                };
+
+                const user = await prisma.user.findUnique({
+                    where: {
+                        number: number
+                    }
+                });
+
+                console.log(user);
+
+                if (user) {
+                    if (user.password === password) {
+                        return user;
+                    }
+                }
+
+                return null;
             },
         }),
     ],
-    // pages: {
-    //     signIn: "/auth/signin",
-    //     signOut: "/",
-    // },
+    pages: {
+        signIn: "/auth/signin",
+        signUp: '/auth/signup'
+    },
+    callbacks: {
+        async jwt({ token, user }: { token: any; user: any; }) {
+            // When user signs in, add custom properties to token
+            if (user) {
+                token.id = user.id;
+                // Add any other custom properties
+                // token.number = user.number
+            }
+            return token;
+        },
+        async session({ session, token }: { session: any; token: any; }) {
+            // Add custom properties to session
+            if (token && session.user) {
+                session.user.id = token.id as string;
+                // Add any other custom properties
+                // session.user.number = token.number as string
+            }
+            console.log(session);
+            return session;
+        },
+    },
     secret: process.env.NEXTAUTH_SECRET
 };

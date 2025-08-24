@@ -1,108 +1,186 @@
-'use client';
+"use client";
 
+import { FormEvent, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { useState } from 'react';
-import { signIn } from 'next-auth/react';
+
+type User = {
+    name: string;
+    number: string;
+    email?: string | null;
+    password: string;
+};
+
+type FormData = {
+    number: string;
+    name: string;
+    email?: string | null;
+    password: string;
+    confirmPassword: string;
+};
 
 export default function SignUp() {
-    const [form, setForm] = useState({
+    const [formData, setFormData] = useState<FormData>({
         name: '',
         email: '',
         number: '',
         password: '',
+        confirmPassword: ''
     });
+    const [error, setError] = useState('');
+    const [loading, setLoading] = useState(false);
+    const router = useRouter();
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setForm({ ...form, [e.target.name]: e.target.value });
+    const handleSubmit = async (e: FormEvent) => {
+        e.preventDefault();
+        setError('');
+        setLoading(true);
+
+        // Validation
+        // if (formData.password !== formData.confirmPassword) {
+        //     setError('Passwords do not match');
+        //     setLoading(false);
+        //     return;
+        // }
+
+        // if (formData.password.length < 6) {
+        //     setError('Password must be at least 6 characters');
+        //     setLoading(false);
+        //     return;
+        // }
+
+        try {
+            const res = await fetch('/api/auth/signup', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    name: formData.name,
+                    number: formData.number,
+                    email: formData.email,
+                    password: formData.password,
+                }),
+            });
+
+            const data = await res.json();
+
+            if (res.ok) {
+                // Redirect to signin page after successful signup
+                router.push('/auth/signin?message=Account created successfully');
+                // router.push('/dashboard');
+            } else {
+                setError(data.message || 'Something went wrong');
+            }
+        } catch (error) {
+            setError('Something went wrong');
+        } finally {
+            setLoading(false);
+        }
     };
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        console.log('Sign Up Data:', form);
-        const res = await signIn('signup', {
-            email: form.email,
-            password: form.password,
-            name: form.name,
-            number: form.number,
-            callbackUrl: '/dashboard'
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setFormData({
+            ...formData,
+            [e.target.name]: e.target.value
         });
-        console.log(res);
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gray-100 text-black">
-            <form
-                onSubmit={handleSubmit}
-                className="bg-white p-8 rounded shadow-md w-full max-w-md"
-            >
-                <h2 className="text-2xl font-bold mb-6 text-center">Sign Up</h2>
-
-                <div className="mb-4">
-                    <label className="block mb-1 font-medium">Name</label>
-                    <input
-                        type="text"
-                        name="name"
-                        value={form.name}
-                        onChange={handleChange}
-                        className="w-full border border-gray-300 px-4 py-2 rounded"
-                        placeholder="Enter your name"
-                        required
-                    />
+        <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+            <div className="max-w-md w-full space-y-8">
+                <div>
+                    <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+                        Create your account
+                    </h2>
                 </div>
+                <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
+                    {error && (
+                        <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded">
+                            {error}
+                        </div>
+                    )}
 
-                <div className="mb-4">
-                    <label className="block mb-1 font-medium">Email</label>
-                    <input
-                        type="text"
-                        name="email"
-                        value={form.email}
-                        onChange={handleChange}
-                        className="w-full border border-gray-300 px-4 py-2 rounded"
-                        placeholder="Enter your email"
-                        required
-                    />
-                </div>
+                    <div className="space-y-4">
+                        <div>
+                            <input
+                                id="name"
+                                name="name"
+                                type="text"
+                                required
+                                className="appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                                placeholder="Full name"
+                                value={formData.name}
+                                onChange={handleChange}
+                            />
+                        </div>
+                        <div>
+                            <input
+                                id="number"
+                                name="number"
+                                type="text"
+                                required
+                                className="appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                                placeholder="Number"
+                                value={formData.number}
+                                onChange={handleChange}
+                            />
+                        </div>
+                        <div>
+                            <input
+                                id="email"
+                                name="email"
+                                type="email"
+                                required
+                                className="appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                                placeholder="Email address"
+                                value={formData.email!}
+                                onChange={handleChange}
+                            />
+                        </div>
+                        <div>
+                            <input
+                                id="password"
+                                name="password"
+                                type="password"
+                                required
+                                className="appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                                placeholder="Password"
+                                value={formData.password}
+                                onChange={handleChange}
+                            />
+                        </div>
+                        <div>
+                            <input
+                                id="confirmPassword"
+                                name="confirmPassword"
+                                type="password"
+                                required
+                                className="appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                                placeholder="Confirm password"
+                                value={formData.confirmPassword}
+                                onChange={handleChange}
+                            />
+                        </div>
+                    </div>
 
-                <div className="mb-4">
-                    <label className="block mb-1 font-medium">Number</label>
-                    <input
-                        type="text"
-                        name="number"
-                        value={form.number}
-                        onChange={handleChange}
-                        className="w-full border border-gray-300 px-4 py-2 rounded"
-                        placeholder="Enter your phone number"
-                        required
-                    />
-                </div>
+                    <div>
+                        <button
+                            type="submit"
+                            disabled={loading}
+                            className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
+                        >
+                            {loading ? 'Creating account...' : 'Sign up'}
+                        </button>
+                    </div>
 
-                <div className="mb-6">
-                    <label className="block mb-1 font-medium">Password</label>
-                    <input
-                        type="password"
-                        name="password"
-                        value={form.password}
-                        onChange={handleChange}
-                        className="w-full border border-gray-300 px-4 py-2 rounded"
-                        placeholder="Enter your password"
-                        required
-                    />
-                </div>
-
-                <button
-                    type="submit"
-                    className="w-full bg-green-600 text-white py-2 rounded hover:bg-green-700"
-                >
-                    Sign Up
-                </button>
-
-                <p className="mt-4 text-center">
-                    Already have an account?{' '}
-                    <Link href="/auth/signin" className="text-blue-600 hover:underline">
-                        Sign In
-                    </Link>
-                </p>
-            </form>
+                    <div className="text-center">
+                        <Link href="/auth/signin" className="text-indigo-600 hover:text-indigo-500">
+                            Already have an account? Sign in
+                        </Link>
+                    </div>
+                </form>
+            </div>
         </div>
     );
 }

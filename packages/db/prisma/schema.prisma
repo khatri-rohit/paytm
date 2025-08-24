@@ -9,51 +9,98 @@ datasource db {
 }
 
 model User {
-  id                Int                 @id @default(autoincrement())
-  email             String?             @unique
-  name              String?
-  number            String              @unique
-  password          String
-  OnRampTransaction OnRampTransaction[]
-  Balance           Balance[]
-  sentTransfers     P2PTransfer[]       @relation(name: "FromUserRelation")
-  receivedTransfers P2PTransfer[]       @relation(name: "ToUserRelation")
-  createdAt         DateTime            @default(now())
-  updatedAt         DateTime            @updatedAt
+  id        Int      @id @default(autoincrement())
+  bankId    Int?     @unique
+  email     String?  @unique
+  name      String?
+  number    String   @unique
+  password  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  balance   Balance?
+
+  // Transactions
+  OnRampTransaction  OnRampTransaction[]
+  sentTransfers      P2PTransfer[]        @relation(name: "FromUserRelation")
+  receivedTransfers  P2PTransfer[]        @relation(name: "ToUserRelation")
+  TransactionHistory TransactionHistory[]
+}
+
+model Balance {
+  id        Int      @id @default(autoincrement())
+  userId    Int      @unique // One-to-one: each user has exactly one balance
+  amount    String
+  bankName  String
+  currency  String   @default("USD")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // One-to-one relationship back to User
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model P2PTransfer {
-  id         Int      @id @default(autoincrement())
-  amount     Int
-  timestamp  DateTime
+  id         Int            @id @default(autoincrement())
+  amount     Decimal        @db.Decimal(15, 2) // Changed to Decimal for consistency
+  timestamp  DateTime       @default(now())
+  status     TransferStatus @default(PENDING)
   fromUserId Int
-  fromUser   User     @relation(name: "FromUserRelation", fields: [fromUserId], references: [id])
+  fromUser   User           @relation(name: "FromUserRelation", fields: [fromUserId], references: [id])
   toUserId   Int
-  toUser     User     @relation(name: "ToUserRelation", fields: [toUserId], references: [id])
+  toUser     User           @relation(name: "ToUserRelation", fields: [toUserId], references: [id])
+
+  @@index([fromUserId])
+  @@index([toUserId])
+  @@index([timestamp])
 }
 
 model OnRampTransaction {
   id         Int      @id @default(autoincrement())
   userId     Int
-  token      String
-  amount     Int
-  proccesing Status
+  token      String   @unique
+  amount     String
+  processing Status
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
   user       User     @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([createdAt])
 }
 
-model Balance {
-  id        Int      @id @default(autoincrement())
-  userId    Int
-  amount    String
-  bankName  String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  user      User     @relation(fields: [userId], references: [id]) // relation to User
+model TransactionHistory {
+  id              Int             @id @default(autoincrement())
+  userId          Int
+  amount          String
+  transactionType TransactionType
+  description     String?
+  balanceBefore   String
+  balanceAfter    String
+  referenceId     String? // Reference to P2PTransfer or OnRampTransaction
+  createdAt       DateTime        @default(now())
+  user            User            @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([createdAt])
+  @@index([referenceId])
 }
 
 enum Status {
   PROCESSING
   SUCCESS
+}
+
+enum TransactionType {
+  CREDIT
+  DEBIT
+  TRANSFER_IN
+  TRANSFER_OUT
+  ON_RAMP
+}
+
+enum TransferStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  CANCELLED
 }
