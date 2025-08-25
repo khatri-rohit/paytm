@@ -24,30 +24,35 @@ export const authOptions = {
                 if (!credentials) {
                     return null; // or handle the case when credentials are undefined
                 }
-                console.log(credentials);
-                const { number, password } = credentials;
+                try {
+                    const { number, password } = credentials;
 
-                const user = await prisma.user.findUnique({
-                    where: {
-                        number: number
+                    const user = await prisma.user.findUnique({
+                        where: {
+                            number: number
+                        }
+                    });
+                    console.log(user);
+
+                    if (user) {
+                        if (user.password === password) {
+                            return user;
+                        }
                     }
-                });
 
-                console.log(user);
-
-                if (user) {
-                    if (user.password === password) {
-                        return user;
-                    }
+                    return null;
+                } catch (error) {
+                    const err = error as Error;
+                    console.log(err.message);
+                    return null;
                 }
-
-                return null;
             },
         }),
     ],
     pages: {
         signIn: "/auth/signin",
-        signUp: '/auth/signup'
+        signUp: '/auth/signup',
+        newUser: '/auth/new-user',
     },
     callbacks: {
         async jwt({ token, user }: { token: any; user: any; }) {

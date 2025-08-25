@@ -21,20 +21,20 @@ export default function Transfer() {
         const searchParams = new URLSearchParams(window.location.search);
         const token = searchParams.get('token');
         const userId = searchParams.get('id');
-        console.log(token, userId);
+        const bankId = searchParams.get('info');
 
-        if (!token || !userId) {
+        if (!token || !userId || !bankId) {
             setError('Invalid token');
             return;
         }
 
         const fetchTransaction = async () => {
             try {
-                const response = await fetch(`/api/transaction?token=${token}&userId=${userId}`);
+                const response = await fetch(`/api/transaction?token=${token}&userId=${userId}&info=${bankId}`);
                 const data = await response.json();
                 console.log(data);
-                if (response.ok) {
-                    setOnRampTransaction(data);
+                if (data.success) {
+                    setOnRampTransaction(data.data);
                 } else {
                     setError(data.error || 'Failed to fetch transaction');
                 }
@@ -55,11 +55,7 @@ export default function Transfer() {
         return <div>Loading...</div>;
     }
 
-    console.log(onRampTransaction);
-
     return (
-        <>
-            <TransferForm amount={onRampTransaction.amount} onRampTransactionId={onRampTransaction.id} />
-        </>
+        <TransferForm onRampTransaction={onRampTransaction} />
     );
 }

@@ -3,6 +3,7 @@
 import { FormEvent, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { signIn } from 'next-auth/react';
 
 type User = {
     name: string;
@@ -66,8 +67,19 @@ export default function SignUp() {
             const data = await res.json();
 
             if (res.ok) {
+                console.log(data);
+                const user = data.user;
+                console.log(user);
+                if (user) {
+                    await signIn('credentials', {
+                        number: user.number,
+                        password: user.password,
+                        redirect: false,
+                    });
+                }
+
                 // Redirect to signin page after successful signup
-                router.push('/auth/signin?message=Account created successfully');
+                router.push('/auth/new-user');
                 // router.push('/dashboard');
             } else {
                 setError(data.message || 'Something went wrong');

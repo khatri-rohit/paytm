@@ -12,14 +12,16 @@
     ]
   },
   "include": [
-    "types/**/*",
-    "**/*.ts",
-    "**/*.tsx",
+    "types",
     "next-env.d.ts",
     "next.config.ts",
-    ".next/types/**/*.ts"
+    ".next/types/**/*.ts",
+    "./**/*.ts",
+    "./**/*.tsx"
   ],
   "exclude": [
-    "node_modules"
+    "node_modules",
+    ".next",
+    "dist"
   ]
 }

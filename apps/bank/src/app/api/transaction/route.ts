@@ -5,8 +5,9 @@ export async function GET(req: Request) {
     const { searchParams } = new URL(req.url);
     const token = searchParams.get('token');
     const userId = searchParams.get('userId');
+    const bankId = searchParams.get('info');
 
-    if (!token || !userId) {
+    if (!token || !userId || !bankId) {
         return NextResponse.json({ error: 'Invalid token or userId' });
     }
 
@@ -19,14 +20,17 @@ export async function GET(req: Request) {
                 }
             }
         });
-        console.log(transaction);
 
         if (!transaction) {
             console.log('Transaction not found');
             return NextResponse.json({ error: 'Transaction not found' });
         }
 
-        return NextResponse.json(transaction);
+        return NextResponse.json({
+            success: true,
+            message: "Transaction Found",
+            data: { ...transaction, bankId: bankId }
+        });
     } catch (err) {
         return NextResponse.json({ error: 'Error fetching transaction' });
     }

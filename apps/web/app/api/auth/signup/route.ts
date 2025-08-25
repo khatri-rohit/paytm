@@ -1,5 +1,6 @@
 import { prisma } from '@repo/db';
 import { NextResponse } from 'next/server';
+import { getCurrentDate } from '../../../lib/getFormatedDate';
 
 export const POST = async (req: Request) => {
     try {
@@ -9,13 +10,18 @@ export const POST = async (req: Request) => {
                 name,
                 email,
                 number,
-                password
+                password,
+                createdAt: getCurrentDate()
             }
         });
-        return NextResponse.json(user);
+        return NextResponse.json({
+            success: true,
+            message: 'User created successfully',
+            user
+        });
     } catch (error) {
         const err = error as Error;
-        console.log(err);
+        console.log(err.message);
         return NextResponse.json({
             success: false,
             message: err.message
