@@ -29,70 +29,20 @@ export const processpayment = async (onRampTransaction: any) => {
         });
         const result = await bankTrnasfrer.json();
 
-        if (result.success) {
-            const onRampTransaction = await prisma.onRampTransaction.update({
-                where: {
-                    id: transaction.id
-                },
-                data: {
-                    processing: "SUCCESS",
-                    updatedAt: getCurrentDate()
-                }
-            });
-        }
+        // if (result.success) {
+        //     const onRampTransaction = await prisma.onRampTransaction.update({
+        //         where: {
+        //             id: transaction.id
+        //         },
+        //         data: {
+        //             processing: "SUCCESS",
+        //             updatedAt: getCurrentDate()
+        //         }
+        //     });
+        // }
         console.log("Transaction Successfuly");
 
         return true;
-        // await prisma.onRampTransaction.update({
-        //     where: {
-        //         id: onRampTransaction.id
-        //     },
-        //     data: {
-        //         processing: 'SUCCESS',
-        //         updatedAt: getCurrentDate()
-        //     }
-        // });
-
-        // const balance = await prisma.balance.findUnique({
-        //     where: {
-        //         userId: onRampTransaction.userId
-        //     }
-        // });
-
-        // if (!balance) {
-        //     throw new Error("Sender Bank not Found");
-        // }
-
-        // await prisma.balance.update({
-        //     where: {
-        //         id: balance.id,
-        //     },
-        //     data: {
-        //         amount: (Number(balance.amount) - Number(amount)).toString()
-        //     }
-        // });
-
-        // const receiverBank = await prisma.balance.findUnique({
-        //     where: {
-        //         id: onRampTransaction.bankId
-        //     }
-        // });
-
-        // if (!receiverBank) {
-        //     throw new Error("Recevier Bank not Found");
-        // }
-
-        // await prisma.balance.update({
-        //     where: {
-        //         id: receiverBank.id
-        //     },
-        //     data: {
-        //         amount: (Number(receiverBank.amount) + Number(amount)).toString()
-        //     }
-        // });
-
-        // console.log('Transaction processed successfully');
-        // return true;
     }
     catch (err) {
         console.error(err);

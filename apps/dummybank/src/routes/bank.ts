@@ -48,7 +48,7 @@ router.post('/create', async (req: Request, res: Response) => {
 
 router.post('/transfer', async (req: Request, res: Response) => {
     try {
-        const { userId, amount, bankId, id: onRampId } = req.body;
+        const { userId, amount, bankId, token } = req.body;
         console.log("------- Transfer Started -------");
 
         // Check if fromUser exists
@@ -102,7 +102,7 @@ router.post('/transfer', async (req: Request, res: Response) => {
                 updatedAt: getCurrentDate()
             }
         });
-        console.log("sender balance updated");
+        console.log("Sender balance updated");
 
         // Update balance to reveiver
         await prisma.balance.update({
@@ -114,7 +114,7 @@ router.post('/transfer', async (req: Request, res: Response) => {
                 updatedAt: getCurrentDate()
             }
         });
-        console.log("reveiver balance updated");
+        console.log("Reveiver balance updated");
         console.log('Balance updated successfully');
 
         await prisma.transactionHistory.create({
@@ -122,33 +122,42 @@ router.post('/transfer', async (req: Request, res: Response) => {
                 userId: Number(userId),
                 amount: amount.toString(),
                 transactionType: 'TRANSFER_OUT',
-                description: `Transfer from ${fromUser?.name}`,
+                description: `Transfer To ${toUser?.name}`,
                 balanceBefore: fromBalance.amount,
                 balanceAfter: (Number(fromBalance.amount) - Number(amount)).toString(),
                 referenceId: null,
                 createdAt: getCurrentDate()
             }
         });
-        console.log("sender transaction created");
+        console.log("Sender transaction created");
 
         await prisma.transactionHistory.create({
             data: {
                 userId: Number(toUser.id),
                 amount: amount.toString(),
                 transactionType: 'TRANSFER_IN',
-                description: `Transfer from ${toUser?.name}`,
+                description: `Transfer from ${fromUser?.name}`,
                 balanceBefore: toBalance.amount,
-                balanceAfter: (Number(fromBalance.amount) + Number(amount)).toString(),
+                balanceAfter: (Number(toBalance.amount) + Number(amount)).toString(),
                 referenceId: null,
                 createdAt: getCurrentDate()
             }
         });
-        console.log("reveiver transaction created");
+
+        const sendSuccess = await fetch('http://localhost:5501/api/bank/transfer', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ token }),
+        });
+
+        console.log("Reveiver transaction created");
         console.log("------- Transfer Completed -------");
 
         return res.status(200).send({
             success: true,
-            message: 'Transfer created successfully',
+            message: 'Transfer money successfully',
         });
     } catch (error) {
         const err = error as Error;

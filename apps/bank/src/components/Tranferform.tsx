@@ -11,7 +11,7 @@ const TransferForm = ({ onRampTransaction }: { onRampTransaction: any; }) => {
         try {
             const success = await processpayment(onRampTransaction);
             if (success) {
-                // window.close();
+                window.close();
                 console.log(success);
             } else {
                 setError('Problem processing payment\nPlease try again');

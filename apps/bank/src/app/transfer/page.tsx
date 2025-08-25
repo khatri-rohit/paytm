@@ -30,11 +30,22 @@ export default function Transfer() {
 
         const fetchTransaction = async () => {
             try {
-                const response = await fetch(`/api/transaction?token=${token}&userId=${userId}&info=${bankId}`);
+                const response = await fetch(`/api/transaction`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        token,
+                        userId,
+                        bankId
+                    })
+                });
                 const data = await response.json();
                 console.log(data);
                 if (data.success) {
-                    setOnRampTransaction(data.data);
+                    console.log("Valid Transaction");
+                    setOnRampTransaction({ ...data.data, token });
                 } else {
                     setError(data.error || 'Failed to fetch transaction');
                 }

@@ -40,7 +40,7 @@ const Home = () => {
             const data = await transaction.json();
             console.log(data);
             if (data.success) {
-                window.open(`http://localhost:3001/transfer?token=${token}&id=${data.transaction.id}&info=${data.transaction.bankId}`, '_blank', 'width=800,height=600');
+                window.open(`http://localhost:3001/transfer?token=${token}&id=${data.transaction.id}&info=${bankId}`, '_blank', 'width=800,height=600');
             } else {
                 throw new Error(data.message);
             }
