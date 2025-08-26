@@ -4,11 +4,10 @@
 import { Navbar } from '@repo/ui/navbar';
 import { signIn, signOut, useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
-
+import TransferLink from '../lib/tranferLink';
 
 export default function DashboardLayout({ children }: { children: React.ReactNode; }) {
-    const { status } = useSession();
-    console.log(status);
+    const { status, data: session } = useSession();
     const router = useRouter();
 
     return (
@@ -18,7 +17,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 signOut={() => {
                     signOut();
                     router.push('/auth/signin');
-                }} />
+                }}
+                link={<TransferLink />} />
+            <h1>Dashboard</h1>
+            <p>Status: {status}</p>
+            <p>Session: {JSON.stringify(session)}</p>
             {children}
         </>
     );

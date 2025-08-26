@@ -1,11 +1,11 @@
 "use client";
 
-import { getSession } from 'next-auth/react';
+import { getSession, useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
 const NewUser = () => {
-    const session = getSession();
+    const { data: session, update: updateSession } = useSession();
     const router = useRouter();
 
     const [amount, setAmount] = useState(0);
@@ -13,7 +13,10 @@ const NewUser = () => {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        const user = await session;
+
+        if (!session) {
+            throw new Error('User is not logged in');
+        }
 
         if (amount <= 0 || bankName.length === 0) {
             return;
@@ -25,11 +28,14 @@ const NewUser = () => {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    userId: user?.user.id,
+                    userId: session.user.id,
                     amount: amount,
-                    bankName: bankName
+                    bankName: bankName,
+                    isNewUser: false
                 })
             });
+            await updateSession({ isNewUser: false });
+
             const result = await res.json();
             if (result.success) {
                 router.push('/dashboard');
@@ -41,6 +47,7 @@ const NewUser = () => {
         } catch (error) {
             const err = error as Error;
             console.log(err.message);
+            throw new Error(err.message);
         }
     };
 

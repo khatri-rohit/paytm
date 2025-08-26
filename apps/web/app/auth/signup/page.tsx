@@ -38,11 +38,11 @@ export default function SignUp() {
         setLoading(true);
 
         // Validation
-        // if (formData.password !== formData.confirmPassword) {
-        //     setError('Passwords do not match');
-        //     setLoading(false);
-        //     return;
-        // }
+        if (formData.password !== formData.confirmPassword) {
+            setError('Passwords do not match');
+            setLoading(false);
+            return;
+        }
 
         // if (formData.password.length < 6) {
         //     setError('Password must be at least 6 characters');
@@ -69,7 +69,6 @@ export default function SignUp() {
             if (res.ok) {
                 console.log(data);
                 const user = data.user;
-                console.log(user);
                 if (user) {
                     await signIn('credentials', {
                         number: user.number,
@@ -80,7 +79,6 @@ export default function SignUp() {
 
                 // Redirect to signin page after successful signup
                 router.push('/auth/new-user');
-                // router.push('/dashboard');
             } else {
                 setError(data.message || 'Something went wrong');
             }

@@ -15,6 +15,7 @@ model User {
   name      String?
   number    String   @unique
   password  String
+  isNewUser Boolean
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   balance   Balance?

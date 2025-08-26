@@ -1,16 +1,20 @@
 import { prisma } from '@repo/db';
 import { NextResponse } from 'next/server';
 import { getCurrentDate } from '../../../lib/getFormatedDate';
+import bcrypt from 'bcryptjs';
 
 export const POST = async (req: Request) => {
     try {
         const { name, email, number, password } = await req.json();
+
+        const hashedPassword = await bcrypt.hash(password, 10);
         const user = await prisma.user.create({
             data: {
                 name,
                 email,
                 number,
-                password,
+                isNewUser: true,
+                password: hashedPassword,
                 createdAt: getCurrentDate()
             }
         });

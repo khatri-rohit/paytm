@@ -6,7 +6,7 @@ const router = Router();
 
 router.post('/create', async (req: Request, res: Response) => {
     try {
-        const { userId, amount, bankName } = req.body;
+        const { userId, amount, bankName, isNewUser } = req.body;
         console.log("----- Create Bank -------");
         console.log(userId, amount, bankName);
         const balance = await prisma.balance.create({
@@ -25,6 +25,7 @@ router.post('/create', async (req: Request, res: Response) => {
             },
             data: {
                 bankId: Number(balance.id),
+                isNewUser: isNewUser,
                 updatedAt: getCurrentDate()
             }
         });

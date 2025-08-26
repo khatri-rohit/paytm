@@ -1,5 +1,8 @@
 import CredentialsProvider from 'next-auth/providers/credentials';
 import { prisma } from '@repo/db';
+import { NextAuthOptions, Session } from 'next-auth';
+import bcrypt from 'bcryptjs';
+import { JWT } from 'next-auth/jwt';
 
 type User = {
     id: string;
@@ -12,7 +15,7 @@ type User = {
 } | any;
 
 
-export const authOptions = {
+export const authOptions: NextAuthOptions = {
     providers: [
         CredentialsProvider({
             name: 'credentials',
@@ -22,58 +25,75 @@ export const authOptions = {
             },
             async authorize(credentials: Record<any, string> | undefined): Promise<User | null> {
                 if (!credentials) {
+                    throw new Error('Credentials are not defined');
                     return null; // or handle the case when credentials are undefined
                 }
                 try {
                     const { number, password } = credentials;
-
-                    const user = await prisma.user.findUnique({
-                        where: {
-                            number: number
-                        }
-                    });
-                    console.log(user);
-
-                    if (user) {
-                        if (user.password === password) {
-                            return user;
-                        }
+                    if (number && isNaN(parseInt(number))) {
+                        throw new Error('Number is not a valid number');
                     }
-
-                    return null;
+                    if (!password) {
+                        throw new Error('Password is not defined');
+                    }
+                    const user = await prisma.user.findUnique({
+                        where: { number }
+                    });
+                    if (!user) {
+                        throw new Error('Invalid Credentials!! User not found');
+                    }
+                    const isPasswordCorrect = await bcrypt.compare(password, user.password);
+                    if (!isPasswordCorrect) {
+                        throw new Error('Password is incorrect');
+                    }
+                    return user;
                 } catch (error) {
                     const err = error as Error;
                     console.log(err.message);
-                    return null;
+                    throw new Error('Invalid Credentials');
                 }
             },
         }),
     ],
     pages: {
         signIn: "/auth/signin",
-        signUp: '/auth/signup',
         newUser: '/auth/new-user',
     },
+    session: {
+        strategy: 'jwt',
+        maxAge: 60 * 60 * 24 * 30, // 30 days
+    },
+    cookies: {
+        sessionToken: {
+            name: 'next-auth.session-token',
+            options: {
+                httpOnly: true,
+                secure: process.env.NODE_ENV === 'production',
+                sameSite: 'lax',
+                path: '/',
+                maxAge: 60 * 60 * 24 * 30, // 30 days
+            }
+        }
+    },
     callbacks: {
-        async jwt({ token, user }: { token: any; user: any; }) {
-            // When user signs in, add custom properties to token
+        async jwt({ token, user, trigger, session }: { token: JWT; user?: User | null; trigger?: "signIn" | "signUp" | "update"; session?: any; }): Promise<any> {
             if (user) {
                 token.id = user.id;
-                // Add any other custom properties
-                // token.number = user.number
+                token.isNewUser = user.isNewUser;
+            }
+
+            if (trigger === 'update' && session) {
+                token.isNewUser = false;
             }
             return token;
         },
-        async session({ session, token }: { session: any; token: any; }) {
-            // Add custom properties to session
-            if (token && session.user) {
-                session.user.id = token.id as string;
-                // Add any other custom properties
-                // session.user.number = token.number as string
+        async session({ session, token, }: { session: Session; token: JWT; }): Promise<any> {
+            if (token) {
+                session.user.id = token.id;
+                session.user.isNewUser = token.isNewUser;
             }
-            console.log(session);
             return session;
-        },
+        }
     },
     secret: process.env.NEXTAUTH_SECRET
 };

@@ -2,7 +2,6 @@
 
 import { useSession } from 'next-auth/react';
 import { useState } from 'react';
-import { sign } from 'jsonwebtoken';
 
 const Home = () => {
     const { data: session, status } = useSession();
@@ -53,10 +52,6 @@ const Home = () => {
 
     return (
         <main>
-            <h1>Dashboard</h1>
-            <p>Status: {status}</p>
-            <p>Session: {JSON.stringify(session)}</p>
-
             <div className='text-black flex flex-col gap-3 bg-white p-4 rounded-md shadow-md'>
                 <input type="text" className='border border-gray-300 rounded-md p-2 w-40' value={bankId} onChange={(e) => {
                     setBankId(parseInt(e.target.value));
