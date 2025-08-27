@@ -18,6 +18,7 @@ export const POST = async (req: Request) => {
                 createdAt: getCurrentDate()
             }
         });
+        console.log("User created successfully");
         return NextResponse.json({
             success: true,
             message: 'User created successfully',

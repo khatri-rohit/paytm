@@ -18,13 +18,21 @@ const P2PTransfer = () => {
         const amount = formData.get('amount');
         const number = formData.get('number');
         const password = formData.get('password');
+        console.log(amount, number, password);
 
-        const response = await fetch('http://localhost:3000/api/user');
+        const response = await fetch('http://localhost:3000/api/bank/transfer', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                amount: amount,
+                number: number,
+                password: password
+            })
+        });
         const result = await response.json();
         console.log(result);
-
-
-        console.log(amount, number, password);
         // Perform the money transfer logic here
     };
 

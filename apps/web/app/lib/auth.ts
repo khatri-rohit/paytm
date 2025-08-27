@@ -46,7 +46,13 @@ export const authOptions: NextAuthOptions = {
                     if (!isPasswordCorrect) {
                         throw new Error('Password is incorrect');
                     }
-                    return user;
+                    console.log("Session created");
+                    return {
+                        id: user.id,
+                        email: user.email,
+                        name: user.name,
+                        isNewUser: user.isNewUser
+                    };
                 } catch (error) {
                     const err = error as Error;
                     console.log(err.message);
