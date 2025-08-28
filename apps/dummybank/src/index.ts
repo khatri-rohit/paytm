@@ -5,6 +5,13 @@ import bank from './routes/bank.js';
 
 dotenv.config();
 
+/*
+    This is a dummy bank application that is used for testing purposes.
+    It is not meant to be used in production.
+    It is meant to be used as a reference for building a real banking application.
+    This application is used to simulate a bank transfer.
+*/
+
 const app = express();
 const port = process.env.PORT || 5500;
 
@@ -16,6 +23,7 @@ app.use(express.urlencoded({ extended: true }));
 console.log('DATABASE_URL exists:', !!process.env.DATABASE_URL);
 
 app.use('/api/bank', bank);
+app.use('/api/transaction', bank);
 
 app.get('/', (req: Request, res: Response) => {
     res.send(`<div style="font-size: 30px; font-weight: bold; background-color: black; color: white; height: 100vh; display: flex; align-items: center; justify-content: center;">

@@ -34,10 +34,10 @@ const NewUser = () => {
                     isNewUser: false
                 })
             });
-            await updateSession({ isNewUser: false });
 
             const result = await res.json();
             if (result.success) {
+                await updateSession({ isNewUser: false });
                 router.push('/dashboard');
             } else {
                 alert(`Error is creating account.\n${JSON.stringify(result)}`);

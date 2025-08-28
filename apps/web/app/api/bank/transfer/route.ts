@@ -76,6 +76,41 @@ export async function POST(req: Request) {
         }
         console.log(formUser);
 
+        const toUser = await prisma.user.findUnique({
+            where: {
+                number: toNumber.toString()
+            }
+        });
+        console.log(toUser);
+
+        if (!toUser) {
+            return NextResponse.json({ error: 'Invalid user ID' });
+        }
+
+        const transaction = await prisma.p2PTransfer.create({
+            data: {
+                amount: amount.toString(),
+                status: 'PENDING',
+                fromUserId: Number(formUser.id),
+                toUserId: Number(toUser.id),
+                timestamp: getCurrentDate()
+            }
+        });
+        console.log(transaction);
+
+        const startTransaction = await fetch('http://localhost:5500/api/transaction/p2ptransaction', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                toUserBankId: toUser.bankId,
+                fromUserBankId: formUser.bankId,
+                amount: amount.toString(),
+                transferId: transaction.id
+            })
+        });
+
         return NextResponse.json({
             success: true,
             message: 'Transfer created successfully',
