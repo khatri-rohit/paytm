@@ -51,7 +51,8 @@ export const authOptions: NextAuthOptions = {
                         id: user.id,
                         email: user.email,
                         name: user.name,
-                        isNewUser: user.isNewUser
+                        isNewUser: user.isNewUser,
+                        bankId: user.bankId
                     };
                 } catch (error) {
                     const err = error as Error;
@@ -86,10 +87,12 @@ export const authOptions: NextAuthOptions = {
             if (user) {
                 token.id = user.id;
                 token.isNewUser = user.isNewUser;
+                token.bankId = user.bankId;
             }
 
             if (trigger === 'update' && session) {
                 token.isNewUser = false;
+                token.bankId = session.user.bankId;
             }
             return token;
         },
@@ -97,6 +100,7 @@ export const authOptions: NextAuthOptions = {
             if (token) {
                 session.user.id = token.id;
                 session.user.isNewUser = token.isNewUser;
+                session.user.bankId = token.bankId;
             }
             return session;
         }

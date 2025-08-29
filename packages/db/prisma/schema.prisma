@@ -41,14 +41,17 @@ model Balance {
 }
 
 model P2PTransfer {
-  id         Int            @id @default(autoincrement())
-  amount     String
-  timestamp  DateTime       @default(now())
-  status     TransferStatus @default(PENDING)
-  fromUserId Int
-  fromUser   User           @relation(name: "FromUserRelation", fields: [fromUserId], references: [id])
-  toUserId   Int
-  toUser     User           @relation(name: "ToUserRelation", fields: [toUserId], references: [id])
+  id           Int            @id @default(autoincrement())
+  amount       String
+  timestamp    DateTime       @default(now())
+  status       TransferStatus @default(PENDING)
+  fromUserId   Int
+  fromUser     User           @relation(name: "FromUserRelation", fields: [fromUserId], references: [id])
+  toUserId     Int
+  toUser       User           @relation(name: "ToUserRelation", fields: [toUserId], references: [id])
+  description  String?
+  senderName   String
+  receiverName String
 
   @@index([fromUserId])
   @@index([toUserId])

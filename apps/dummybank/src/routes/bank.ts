@@ -127,7 +127,7 @@ router.post('/transfer', async (req: Request, res: Response) => {
 
         await prisma.transactionHistory.create({
             data: {
-                userId: Number(userId),
+                userId: Number(fromUser.id),
                 amount: amount.toString(),
                 transactionType: 'TRANSFER_OUT',
                 description: `Transfer To ${toUser?.name}`,

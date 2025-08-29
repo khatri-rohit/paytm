@@ -3,7 +3,8 @@ import { NextResponse } from 'next/server';
 import { getCurrentDate } from '../../../lib/getFormatedDate';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '../../../lib/auth';
-import bycrypt from 'bcryptjs';
+import bcrypt from 'bcryptjs';
+import { revalidateTag } from 'next/cache';
 
 export async function GET(req: Request) {
     try {
@@ -43,24 +44,25 @@ export async function POST(req: Request) {
     try {
         const session = await getServerSession(authOptions);
         if (!session) {
-            return NextResponse.json({ error: 'Unauthorized' });
+            return NextResponse.json({ success: false, error: 'Unauthorized' });
         }
+        console.log("----- P2PTransfer -----");
         const { user } = session;
         if (!user) {
-            return NextResponse.json({ error: 'Unauthorized' });
+            return NextResponse.json({ success: false, error: 'Unauthorized' });
         }
-        const { amount, number: toNumber, password } = await req.json();
+        const { amount, number: toNumber, password, description } = await req.json();
 
         if (!amount) {
-            return NextResponse.json({ error: 'Amount is required' });
+            return NextResponse.json({ success: false, error: 'Amount is required' });
         }
 
         if (!toNumber) {
-            return NextResponse.json({ error: 'To User Id is required' });
+            return NextResponse.json({ success: false, error: 'To User Id is required' });
         }
 
         if (!password) {
-            return NextResponse.json({ error: 'Password is required' });
+            return NextResponse.json({ success: false, error: 'Password is required' });
         }
 
         const formUser = await prisma.user.findUnique({
@@ -68,35 +70,46 @@ export async function POST(req: Request) {
                 id: Number(user.id),
             }
         });
+        console.log("Form User:", formUser);
         if (!formUser) {
-            return NextResponse.json({ error: 'Invalid user ID form session' });
+            return NextResponse.json({ success: false, error: 'Invalid user ID form session' });
         }
-        if (!bycrypt.compare(password, formUser.password)) {
-            return NextResponse.json({ error: 'Wrong password' });
+
+        if (formUser.number === toNumber.toString()) {
+            return NextResponse.json({ success: false, error: 'Cannot transfer to self' });
         }
-        console.log(formUser);
+
+        const passwordOk = await bcrypt.compare(password, formUser.password);
+        if (!passwordOk) {
+            return NextResponse.json({ success: false, error: 'Wrong password' });
+        }
 
         const toUser = await prisma.user.findUnique({
             where: {
                 number: toNumber.toString()
             }
         });
-        console.log(toUser);
+        console.log("To User:", toUser);
 
         if (!toUser) {
-            return NextResponse.json({ error: 'Invalid user ID' });
+            return NextResponse.json({ success: false, error: 'Invalid user ID' });
         }
 
+        console.log("Creating transaction...");
         const transaction = await prisma.p2PTransfer.create({
             data: {
                 amount: amount.toString(),
                 status: 'PENDING',
                 fromUserId: Number(formUser.id),
                 toUserId: Number(toUser.id),
-                timestamp: getCurrentDate()
+                timestamp: getCurrentDate(),
+                description: description ? String(description).slice(0, 140) : null,
+                receiverName: toUser?.name || 'Unknown',
+                senderName: formUser?.name || 'Unknown'
             }
         });
-        console.log(transaction);
+
+        console.log("Transaction created:", transaction);
 
         const startTransaction = await fetch('http://localhost:5500/api/transaction/p2ptransaction', {
             method: 'POST',
@@ -110,7 +123,8 @@ export async function POST(req: Request) {
                 transferId: transaction.id
             })
         });
-
+        console.log("Start Revalidation:");
+        revalidateTag('p2p-transfer');
         return NextResponse.json({
             success: true,
             message: 'Transfer created successfully',

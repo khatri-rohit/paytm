@@ -7,6 +7,7 @@ declare module "next-auth" {
         user: {
             id?: string;
             isNewUser?: boolean;
+            bankId?: string;
             // Add any other custom properties you want to include
             // number?: string
             // role?: string
@@ -16,6 +17,7 @@ declare module "next-auth" {
     interface User extends DefaultUser {
         id: string;
         isNewUser?: boolean;
+        bankId?: string;
         // Add any other custom properties
         // number?: string
         // role?: string
@@ -26,6 +28,7 @@ declare module "next-auth/jwt" {
     interface JWT extends DefaultJWT {
         id: string;
         isNewUser?: boolean;
+        bankId?: string;
         // Add any other custom properties
         // number?: string
         // role?: string

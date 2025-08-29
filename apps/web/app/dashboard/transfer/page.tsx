@@ -24,6 +24,17 @@ const Transfer = () => {
         return;
       }
 
+      const _bankId = session.user.bankId;
+      if (!_bankId) {
+        console.error("Bank ID is not defined.");
+        return;
+      }
+
+      if (Number(_bankId) === bankId) {
+        alert("You cannot transfer money to your own bank account");
+        return;
+      }
+
       const transaction = await fetch('/api/ramptranc', {
         method: 'POST',
         headers: {
@@ -36,6 +47,7 @@ const Transfer = () => {
           amount: amount.toString(),
         })
       });
+
       const data = await transaction.json();
       console.log(data);
       if (data.success) {
@@ -50,7 +62,7 @@ const Transfer = () => {
     }
   };
 
-  
+
   return (
     <div className='text-black flex flex-col gap-3 bg-white p-4 rounded-md shadow-md'>
       <input type="text" className='border border-gray-300 rounded-md p-2 w-40' value={bankId} onChange={(e) => {
@@ -63,7 +75,7 @@ const Transfer = () => {
         onClick={sendMoney}>
         Send Money
       </button>
-    </div>  );
+    </div>);
 };
 
 export default Transfer;
