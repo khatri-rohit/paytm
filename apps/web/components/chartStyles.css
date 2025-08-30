@@ -1,0 +1,25 @@
+/* Google Charts tooltip dark theme */
+.google-visualization-tooltip {
+    background: #0F172A !important;
+    /* slate-900 */
+    color: #F9FAFB !important;
+    /* gray-50 */
+    border: 1px solid #334155 !important;
+    /* slate-700 */
+    border-radius: 8px !important;
+    padding: 8px 10px !important;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35) !important;
+    pointer-events: none;
+}
+
+.google-visualization-tooltip-item,
+.google-visualization-tooltip-item span {
+    color: #F9FAFB !important;
+}
+
+.google-visualization-haxis text,
+.google-visualization-axis text {
+    font-style: normal !important;
+    font-weight: 400 !important;
+    font-family: Inter, system-ui, Segoe UI, Arial, sans-serif !important;
+}

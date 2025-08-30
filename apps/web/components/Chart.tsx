@@ -1,51 +1,68 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Chart } from "react-google-charts";
+import './chartStyles.css';
+import { Circle } from 'lucide-react';
 
-const data = [
-    ["Year", "Sales", "Expenses"],
-    ["2013", 1000, 400],
-    ["2014", 1170, 460],
-    ["2015", 660, 1120],
-    ["2016", 1030, 540],
-];
+// const data = [
+//     ["Year", "Sales", "Expenses"],
+//     ["2013", 1000, 400],
+//     ["2014", 1170, 460],
+//     ["2015", 660, 1120],
+//     ["2016", 1030, 540],
+// ];
 
 export const options = {
     title: 'Transaction Analysis',
+    backgroundColor: '#0B1220',
+    chartArea: { left: 84, top: 40, right: 28, bottom: 88, width: '100%', height: '100%' },
     curveType: 'function',
+    colors: ['#22D3EE', '#FB7185'],
+    lineWidth: 3,
+    pointSize: 4,
     legend: {
         position: 'bottom',
-        textStyle: { color: '#D1D5DB' }, // gray-300
         alignment: 'center',
+        textStyle: { color: '#E5E7EB', fontSize: 12 },
     },
-    backgroundColor: '#121212',
-    chartArea: { left: 56, top: 40, right: 16, bottom: 48, width: '100%', height: '100%' },
-    titleTextStyle: { color: '#E5E7EB', fontSize: 16, bold: true }, // gray-200
+    titleTextStyle: { color: '#FFFFFF', fontSize: 16, bold: true }, // pure white title
     hAxis: {
         title: 'This Month',
-        titleTextStyle: { color: '#94A3B8', italic: false }, // slate-400
-        textStyle: { color: '#E5E7EB' }, // gray-200
-        baselineColor: '#334155', // slate-700
-        gridlines: { color: '#1F2937' }, // gray-800
+        format: 'MM DD YYYY',                         // readable date labels
+        titleTextStyle: { color: '#94A3B8', italic: false, bold: false, fontName: 'Inter, system-ui, Segoe UI, Arial' },
+        textStyle: { color: '#F1F5F9', fontSize: 12, italic: false, bold: false, fontName: 'Inter, system-ui, Segoe UI, Arial' },
+        slantedText: true,
+        slantedTextAngle: 60,
+        showTextEvery: 1,
+        baselineColor: '#334155',
+        gridlines: { color: '#1F2937' },
+        minorGridlines: { color: '#0B1220' },
     },
     vAxis: {
         title: 'Amount',
-        minValue: 0,
-        titleTextStyle: { color: '#94A3B8', italic: false },
-        textStyle: { color: '#E5E7EB' },
+        viewWindow: { min: 0 },
+        format: '#,###',
+        titleTextStyle: { color: '#94A3B8', italic: false, bold: false, fontName: 'Inter, system-ui, Segoe UI, Arial' },
         baselineColor: '#334155',
         gridlines: { color: '#1F2937' },
+        minorGridlines: { color: '#0B1220' },
     },
-    colors: ['#22D3EE', '#FB7185'], // cyan-400, rose-400
-    lineWidth: 3,
-    pointSize: 4,
-    intervals: { style: 'line' },
+    focusTarget: 'category',
+    crosshair: { trigger: 'both', orientation: 'both', color: '#64748B', opacity: 0.6 },
+    tooltip: {
+        isHtml: true,                            // allows custom dark tooltip styles
+        textStyle: { color: '#121212', fontSize: 14 },
+        showColorCode: true,
+        trigger: 'focus',
+    },
+    allowContainerBoundaryTextOverflow: true,
 };
 
 export default function ChartComponent() {
 
-    const [chartData, setChartData] = React.useState(data);
+    const [chartData, setChartData] = useState([]);
+    const [loading, setLoading] = useState(true);
 
     const updateChartData = (newData: any) => {
         setChartData(newData);
@@ -54,23 +71,33 @@ export default function ChartComponent() {
     useEffect(() => {
         // Simulate an API call to fetch new data
         const fetchData = async () => {
+            setLoading(true);
             const response = await fetch('/api/transaction-data');
             const newData = await response.json();
 
             updateChartData(newData.data);
+            setLoading(false);
         };
 
         fetchData();
     }, []);
 
     return (
-        <Chart
-            chartType="LineChart"
-            width="100%"
-            height="580px"
-            data={chartData}
-            options={options}
-            legendToggle
-        />
+        <div className="rounded-xl border border-slate-800 bg-[#0B1220] p-4">
+            {loading ? (
+                <div className="flex items-center justify-center h-[550px]">
+                    <Circle className="animate-spin h-10 w-10 text-gray-600" />
+                </div>
+            ) : (
+                <Chart
+                    chartType="LineChart"
+                    width="100%"
+                    height="550px"
+                    data={chartData}
+                    options={options}
+                    legendToggle
+                />
+            )}
+        </div>
     );
 }

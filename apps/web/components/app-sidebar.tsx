@@ -106,7 +106,7 @@ export function AppSidebar({ setpageName }: { setpageName: Dispatch<SetStateActi
                         <Button
                             variant="outline"
                             onClick={() => signOut()}
-                            className="border-zinc-700 text-zinc-300 hover:bg-white/5 hover:text-zinc-100"
+                            className="border-zinc-700 text-zinc-800 hover:bg-white/5 hover:text-zinc-100 cursor-pointer"
                         >
                             Sign out
                         </Button>
@@ -123,13 +123,13 @@ export function AppSidebar({ setpageName }: { setpageName: Dispatch<SetStateActi
                             <Button
                                 asChild
                                 variant="outline"
-                                className="w-full border-zinc-700 text-zinc-300 hover:bg-white/5 hover:text-zinc-100"
+                                className="w-full border-zinc-700 text-zinc-300 hover:bg-white/5 hover:text-zinc-100 cursor-pointer"
                             >
                                 <Link href="/auth/signin">Sign in</Link>
                             </Button>
                             <Button
                                 asChild
-                                className="w-full bg-indigo-600 hover:bg-indigo-500 text-white"
+                                className="w-full bg-indigo-600 hover:bg-indigo-500 text-white cursor-pointer"
                             >
                                 <Link href="/auth/signup">Sign up</Link>
                             </Button>

@@ -2,9 +2,11 @@
 
 interface TransactionHistoryProps {
     icon: React.ReactNode;
+    LoadingIcon: React.ReactNode;
     data?: HistoryItem[];
     formatDateTime: (date: Date) => string;
     failed?: boolean;
+    loading?: boolean;
 }
 
 type TransactionType = 'CREDIT' | 'DEBIT' | 'TRANSFER_IN' | 'TRANSFER_OUT' | 'ON_RAMP' | string;
@@ -20,7 +22,7 @@ interface HistoryItem {
     createdAt?: string | Date;
 }
 
-const TransactionHistory = ({ icon, data = [], formatDateTime, failed }: TransactionHistoryProps) => {
+const TransactionHistory = ({ LoadingIcon, icon, data = [], formatDateTime, failed, loading }: TransactionHistoryProps) => {
     const items = Array.isArray(data) ? data : [];
     return (
         <aside className="ui:w-full ui:h-full">
@@ -30,7 +32,13 @@ const TransactionHistory = ({ icon, data = [], formatDateTime, failed }: Transac
                     <h2 className="ui:text-sm ui:font-medium text-gray-600">Transaction History</h2>
                 </div>
 
-                {items.length === 0 ? (
+                {loading && (
+                    <div className="ui:py-4 ui:text-center ui:min-h-[500px] ui:flex ui:items-center ui:justify-center">
+                        {LoadingIcon}
+                    </div>
+                )}
+
+                {!loading && items.length === 0 ? (
                     <div className="ui:rounded-md ui:border ui:border-dashed ui:p-6 ui:text-center">
                         <p className="ui:text-sm ui:text-gray-600">No transactions yet</p>
                         <p className="ui:mt-1 ui:text-xs ui:text-gray-500">Your recent transfers will appear here.</p>

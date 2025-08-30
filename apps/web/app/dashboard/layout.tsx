@@ -6,6 +6,7 @@ import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/s
 import { AppSidebar } from "@/components/app-sidebar";
 import { useState } from 'react';
 import { Circle } from 'lucide-react';
+import { Toaster } from '@/components/ui/sonner';
 
 export default function DashboardLayout({ children }: { children: React.ReactNode; }) {
     const { data: session, status } = useSession();
@@ -32,6 +33,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     )}
                 </div>
                 <div className="p-4 h-full text-zinc-100 bg-gradient-to-b from-zinc-950 via-[#0B1220] to-black">{children}</div>
+                <Toaster position='top-center' />
             </SidebarInset>
         </SidebarProvider>
     );

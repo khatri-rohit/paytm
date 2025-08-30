@@ -92,6 +92,7 @@ const P2PTransferForm: React.FC<Props> = ({ transferFn }) => {
                                 "ui:text-black ui:block ui:w-full ui:px-3 ui:py-2 ui:border ui:rounded-md ui:shadow-sm focus:ui:ring-blue-500 focus:ui:border-blue-500 " +
                                 (errors.number ? "ui:border-red-500" : "ui:border-gray-300")
                             }
+                            required
                             placeholder="9876543210 or user@bank"
                             aria-invalid={!!errors.number}
                             aria-describedby={errors.number ? "number-error" : undefined}
@@ -120,6 +121,7 @@ const P2PTransferForm: React.FC<Props> = ({ transferFn }) => {
                                     "ui:text-black ui:block ui:w-full ui:pl-7 ui:pr-3 ui:py-2 ui:border ui:rounded-md ui:shadow-sm focus:ui:ring-blue-500 focus:ui:border-blue-500 " +
                                     (errors.amount ? "ui:border-red-500" : "ui:border-gray-300")
                                 }
+                                required
                                 placeholder="0.00"
                                 aria-invalid={!!errors.amount}
                                 aria-describedby={errors.amount ? "amount-error" : undefined}
@@ -173,6 +175,7 @@ const P2PTransferForm: React.FC<Props> = ({ transferFn }) => {
                                 "ui:block ui:w-full ui:px-3 ui:py-2 ui:border ui:rounded-md ui:shadow-sm focus:ui:ring-blue-500 focus:ui:border-blue-500 ui:text-black " +
                                 (errors.password ? "ui:border-red-500" : "ui:border-gray-300")
                             }
+                            required
                             placeholder="Enter your password"
                             aria-invalid={!!errors.password}
                             aria-describedby={errors.password ? "password-error" : undefined}

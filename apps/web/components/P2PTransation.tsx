@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useSession } from "next-auth/react";
 import P2PTransferForm from "@repo/ui/p2ptranfer-form";
+import { toast } from "sonner";
 
 const P2PTransation = () => {
     const { status } = useSession();
@@ -31,10 +32,22 @@ const P2PTransation = () => {
             const result = await response.json();
             console.log(result);
             if (!response.ok || result?.success === false) {
-                throw new Error(result?.error || result?.message || "Transfer failed");
+                toast.error("Transfer failed", {
+                    description: result?.message || "An error occurred during the transfer.", style: {
+                        backgroundColor: "#ff2424",
+                        color: "white",
+                    }
+                });
+            }
+            if (response.ok && result?.success) {
+                toast.success("Transfer successful!", {
+                    description: "Your transfer was completed successfully.", style: {
+                        backgroundColor: "#4caf50",
+                        color: "white",
+                    }
+                });
             }
             setError(null);
-            // Optionally: show success toast or navigate
         } catch (e: any) {
             setError(e.message || "An error occurred during the transfer.");
         } finally {
@@ -43,18 +56,7 @@ const P2PTransation = () => {
     };
 
     return (
-        <>
-            {error && (
-                <div
-                    role="alert"
-                    className="mb-4 rounded-md border border-red-300 bg-red-50 px-3 py-2 text-sm text-red-700"
-                >
-                    {error}
-                </div>
-            )}
-
-            <P2PTransferForm transferFn={transferMoney} />
-        </>
+        <P2PTransferForm transferFn={transferMoney} />
     );
 };
 
