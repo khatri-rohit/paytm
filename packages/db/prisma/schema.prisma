@@ -77,6 +77,7 @@ model TransactionHistory {
   userId          Int
   amount          String
   transactionType TransactionType
+  entryType       EntryType
   description     String?
   balanceBefore   String
   balanceAfter    String
@@ -95,11 +96,15 @@ enum Status {
 }
 
 enum TransactionType {
-  CREDIT
-  DEBIT
   TRANSFER_IN
   TRANSFER_OUT
   ON_RAMP
+  P2P_TRANSFER
+}
+
+enum EntryType {
+  CREDIT
+  DEBIT
 }
 
 enum TransferStatus {

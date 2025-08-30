@@ -1,0 +1,95 @@
+import { PrismaClient } from '../src/generated/prisma/index.js';
+const prisma = new PrismaClient();
+
+function daysFromAgo(startDaysAgo, endDaysAgo = 0) {
+  const dates = [];
+  for (let d = startDaysAgo; d >= endDaysAgo; d--) {
+    const date = new Date();
+    date.setHours(0, 0, 0, 0);
+    date.setDate(date.getDate() - d);
+    dates.push(date);
+  }
+  return dates;
+}
+
+function atTime(base, hours, minutes = 0) {
+  const dt = new Date(base);
+  dt.setHours(hours, minutes, 0, 0);
+  return dt;
+}
+
+function toAmountString(n) {
+  return Math.round(n).toString();
+}
+
+async function main() {
+  const targetIds = [1, 2];
+  const existing = await prisma.user.findMany({ where: { id: { in: targetIds } }, select: { id: true } });
+  const userIds = existing.map((u) => u.id);
+
+  if (userIds.length === 0) {
+    console.warn('No target users (1,2) found. Skipping TransactionHistory seeding.');
+    return;
+  }
+
+  const dates = daysFromAgo(10, 0);
+  const allData = [];
+
+  for (const uid of userIds) {
+    let balance = 10000;
+    for (let i = 0; i < dates.length; i++) {
+      const base = dates[i];
+
+      const creditAmt = 400 + (i % 7) * 50 + (uid === 1 ? 60 : 0);
+      const creditType = i % 3 === 0 ? 'ON_RAMP' : 'TRANSFER_IN';
+      const creditBefore = balance;
+      const creditAfter = creditBefore + creditAmt;
+      balance = creditAfter;
+
+      allData.push({
+        userId: uid,
+        amount: toAmountString(creditAmt),
+        transactionType: creditType,
+        entryType: 'CREDIT',
+        description: creditType === 'ON_RAMP' ? 'On-ramp deposit' : 'Incoming transfer',
+        balanceBefore: toAmountString(creditBefore),
+        balanceAfter: toAmountString(creditAfter),
+        referenceId: null,
+        createdAt: atTime(base, 10),
+      });
+
+      const maxDebit = Math.max(100, Math.floor(balance * 0.4));
+      const debitAmt = Math.min(300 + (i % 5) * 40 + (uid === 2 ? 40 : 0), maxDebit);
+      const debitType = i % 2 === 0 ? 'P2P_TRANSFER' : 'TRANSFER_OUT';
+      const debitBefore = balance;
+      const debitAfter = Math.max(0, debitBefore - debitAmt);
+      balance = debitAfter;
+
+      allData.push({
+        userId: uid,
+        amount: toAmountString(debitAmt),
+        transactionType: debitType,
+        entryType: 'DEBIT',
+        description: debitType === 'P2P_TRANSFER' ? 'Peer transfer' : 'Outgoing transfer',
+        balanceBefore: toAmountString(debitBefore),
+        balanceAfter: toAmountString(debitAfter),
+        referenceId: null,
+        createdAt: atTime(base, 17),
+      });
+    }
+  }
+
+  if (allData.length > 0) {
+    const result = await prisma.transactionHistory.createMany({ data: allData });
+    console.log(`Inserted ${result.count} TransactionHistory rows for users ${userIds.join(', ')}`);
+  }
+}
+
+main()
+  .catch((e) => {
+    console.error(e);
+    process.exit(1);
+  })
+  .finally(async () => {
+    await prisma.$disconnect();
+  });

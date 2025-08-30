@@ -12,12 +12,12 @@ export async function POST(req: Request) {
                 id: Number(userId)
             }
         });
-
+        console.log(user);
         if (!user) {
             return NextResponse.json({
                 success: false,
                 message: 'User not found'
-            });
+            }, { status: 404 });
         }
 
         const bank = await prisma.balance.findUnique({
@@ -30,7 +30,14 @@ export async function POST(req: Request) {
             return NextResponse.json({
                 success: false,
                 message: "Invalid Bank Id"
-            });
+            }, { status: 404 });
+        }
+
+        if (user.bankId === bank.id) {
+            return NextResponse.json({
+                success: false,
+                message: "User cannot use the same bank account"
+            }, { status: 400 });
         }
 
         const transaction = await prisma.onRampTransaction.create({
@@ -42,19 +49,20 @@ export async function POST(req: Request) {
                 createdAt: getCurrentDate()
             }
         });
-        console.log("Transaction Created Successfully");
+
+        console.log("Transaction Created Successfully...", transaction);
         return NextResponse.json({
             success: true,
             message: "Transaction created successfully",
             transaction: { ...transaction, bankId: bank.id }
-        });
+        }, { status: 201 });
     } catch (error) {
         const err = error as Error;
         console.log(err.message);
         return NextResponse.json({
             success: false,
             message: err.message
-        });
+        }, { status: 500 });
     }
 }
 
@@ -75,10 +83,13 @@ export async function GET() {
             success: true,
             message: 'Fetched on-ramp transactions successfully',
             data: items
-        });
+        }, { status: 200 });
     } catch (error) {
         const err = error as Error;
         console.error('Error fetching on-ramp history:', err.message);
-        return NextResponse.json({ success: false, message: 'Failed to fetch on-ramp history' }, { status: 500 });
+        return NextResponse.json({
+            success: false,
+            message: 'Failed to fetch on-ramp history'
+        }, { status: 500 });
     }
 }

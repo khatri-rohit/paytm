@@ -51,14 +51,23 @@ const Transfer = () => {
       const data = await transaction.json();
       console.log(data);
       if (data.success) {
-        window.open(`http://localhost:3001/transfer?token=${token}&id=${data.transaction.id}&info=${bankId}`, '_blank', 'width=800,height=600');
+        const screenWidth = window.screen.width;
+        const screenHeight = window.screen.height;
+        const windowWidth = 800;
+        const windowHeight = 600;
+        const left = (screenWidth - windowWidth) / 2;
+        const top = (screenHeight - windowHeight) / 2;
+
+        window.open(`http://localhost:3001/transfer?token=${token}&id=${data.transaction.id}&info=${bankId}`, '_blank', `noopener,width=${windowWidth},height=${windowHeight},left=${left},top=${top}`);
       } else {
+        alert(data.message);
         throw new Error(data.message);
       }
 
     } catch (error) {
       const err = error as Error;
       console.log(err.message);
+      alert(err.message);
     }
   };
 

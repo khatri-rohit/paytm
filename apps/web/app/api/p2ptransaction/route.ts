@@ -17,10 +17,11 @@ export async function GET(request: Request) {
                     { fromUserId: Number(userId) },
                     { toUserId: Number(userId) }
                 ]
-            }
+            },
+            orderBy: { timestamp: 'desc' },
         });
 
-        console.log("Fetched P2P transactions:", getP2PTransactions);
+        // console.log("Fetched P2P transactions:", getP2PTransactions);
 
         return NextResponse.json({
             success: true,

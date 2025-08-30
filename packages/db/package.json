@@ -10,11 +10,16 @@
   "scripts": {
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate dev --skip-generate",
-    "db:deploy": "prisma migrate deploy"
+    "db:deploy": "prisma migrate deploy",
+    "db:seed": "node prisma/seed.mjs"
   },
   "license": "ISC",
   "dependencies": {
     "@prisma/client": "^6.14.0",
     "prisma": "^6.14.0"
+  },
+  "devDependencies": {
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.2"
   }
 }

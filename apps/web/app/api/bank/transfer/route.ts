@@ -24,7 +24,7 @@ export async function GET(req: Request) {
                 updatedAt: getCurrentDate()
             }
         });
-
+        console.log("OnRamp Transaction Successfully", transaction);
         return NextResponse.json({
             success: true,
             message: "OnRamp Transaction Successfully",
@@ -70,7 +70,7 @@ export async function POST(req: Request) {
                 id: Number(user.id),
             }
         });
-        console.log("Form User:", formUser);
+        // console.log("Form User:", formUser);
         if (!formUser) {
             return NextResponse.json({ success: false, error: 'Invalid user ID form session' });
         }
@@ -89,7 +89,7 @@ export async function POST(req: Request) {
                 number: toNumber.toString()
             }
         });
-        console.log("To User:", toUser);
+        // console.log("To User:", toUser);
 
         if (!toUser) {
             return NextResponse.json({ success: false, error: 'Invalid user ID' });
@@ -108,8 +108,8 @@ export async function POST(req: Request) {
                 senderName: formUser?.name || 'Unknown'
             }
         });
-
-        console.log("Transaction created:", transaction);
+        revalidateTag('p2p-transfer');
+        // console.log("Transaction created:", transaction);
 
         const startTransaction = await fetch('http://localhost:5500/api/transaction/p2ptransaction', {
             method: 'POST',
@@ -125,12 +125,12 @@ export async function POST(req: Request) {
         });
         console.log("Start Revalidation:");
         revalidateTag('p2p-transfer');
+
         return NextResponse.json({
             success: true,
             message: 'Transfer created successfully',
             data: formUser
         });
-
     } catch (err) {
         const error = err as Error;
         console.log(error.message);

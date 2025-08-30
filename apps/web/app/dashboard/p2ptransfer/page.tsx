@@ -19,7 +19,7 @@ const P2PTransfer = async () => {
     });
 
     const data = await response.json().catch(() => ({ success: false, data: [] }));
-    console.log(data);
+    // console.log(data);
     // change schema to categories data into debit and credit for UI histroy
 
     return (

@@ -20,14 +20,16 @@ export default function Transfer() {
     useEffect(() => {
         const searchParams = new URLSearchParams(window.location.search);
         const token = searchParams.get('token');
-        const userId = searchParams.get('id');
+        const transactionId = searchParams.get('id');
         const bankId = searchParams.get('info');
+        console.log(token);
+        console.log(transactionId);
+        console.log(bankId);
 
-        if (!token || !userId || !bankId) {
+        if (!token || !transactionId || !bankId) {
             setError('Invalid token');
             return;
         }
-
         const fetchTransaction = async () => {
             try {
                 const response = await fetch(`/api/transaction`, {
@@ -37,7 +39,7 @@ export default function Transfer() {
                     },
                     body: JSON.stringify({
                         token,
-                        userId,
+                        transactionId,
                         bankId
                     })
                 });

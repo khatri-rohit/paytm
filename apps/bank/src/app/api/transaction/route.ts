@@ -3,25 +3,26 @@ import { prisma } from '@repo/db';
 
 export async function POST(req: Request) {
 
-    const { token, userId, bankId } = await req.json();
+    const { token, transactionId, bankId } = await req.json();
 
-    if (!token || !userId || !bankId) {
-        return NextResponse.json({ error: 'Invalid token or userId' });
+    if (!token || !transactionId || !bankId) {
+        return NextResponse.json({ success: false, error: 'Invalid token or transactionId' });
     }
-
+    console.log(token, transactionId, bankId);
     try {
         const transaction = await prisma.onRampTransaction.findUnique({
             where: {
-                id: Number(userId),
+                id: Number(transactionId),
                 AND: {
                     token: token,
                 }
             }
         });
 
+        console.log(transaction);
         if (!transaction) {
             console.log('Transaction not found');
-            return NextResponse.json({ error: 'Transaction not found' });
+            return NextResponse.json({ success: false, error: 'Transaction not found' });
         }
 
         return NextResponse.json({

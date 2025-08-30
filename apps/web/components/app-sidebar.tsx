@@ -72,11 +72,11 @@ export function AppSidebar({ setpageName }: { setpageName: Dispatch<SetStateActi
                             <SidebarMenuItem>
                                 <SidebarMenuButton
                                     asChild
-                                    isActive={isActive("/dashboard/transfer")}
+                                    isActive={isActive("/dashboard/bank")}
                                     onClick={() => handleMenuItemClick("Bank Transfer")}
                                     className="text-zinc-300 hover:text-zinc-100 hover:bg-white/5 data-[active=true]:bg-white/10 data-[active=true]:text-zinc-100"
                                 >
-                                    <Link href="/dashboard/transfer">
+                                    <Link href="/dashboard/bank">
                                         <Banknote />
                                         <span>Bank Transfer</span>
                                     </Link>

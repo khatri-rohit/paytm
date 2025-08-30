@@ -133,6 +133,7 @@ router.post('/transfer', async (req: Request, res: Response) => {
                 description: `Transfer To ${toUser?.name}`,
                 balanceBefore: fromBalance.amount,
                 balanceAfter: (Number(fromBalance.amount) - Number(amount)).toString(),
+                entryType: 'DEBIT',
                 referenceId: null,
                 createdAt: getCurrentDate()
             }
@@ -148,6 +149,7 @@ router.post('/transfer', async (req: Request, res: Response) => {
                 balanceBefore: toBalance.amount,
                 balanceAfter: (Number(toBalance.amount) + Number(amount)).toString(),
                 referenceId: null,
+                entryType: 'CREDIT',
                 createdAt: getCurrentDate()
             }
         });
@@ -253,11 +255,12 @@ router.post('/p2ptransaction', async (req: Request, res: Response) => {
                 data: {
                     userId: Number(fromUser.id),
                     amount: amount.toString(),
-                    transactionType: 'TRANSFER_OUT',
+                    transactionType: 'P2P_TRANSFER',
                     description: `Transfer To ${toUser?.name}`,
                     balanceBefore: (Number(sender.amount) + Number(amount)).toString(),
                     balanceAfter: Number(sender.amount).toString(),
                     referenceId: null,
+                    entryType: 'DEBIT',
                     createdAt: getCurrentDate()
                 }
             });
@@ -267,10 +270,11 @@ router.post('/p2ptransaction', async (req: Request, res: Response) => {
                 data: {
                     userId: Number(toUser.id),
                     amount: amount.toString(),
-                    transactionType: 'TRANSFER_IN',
+                    transactionType: 'P2P_TRANSFER',
                     description: `Transfer from ${fromUser?.name}`,
                     balanceBefore: (Number(receiver.amount) - Number(amount)).toString(),
                     balanceAfter: Number(receiver.amount).toString(),
+                    entryType: 'CREDIT',
                     referenceId: null,
                     createdAt: getCurrentDate()
                 }

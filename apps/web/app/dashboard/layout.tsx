@@ -31,7 +31,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                         <img src={session?.user.image || '/fallbackuser.png'} className='h-8.5 w-8.5 rounded-full bg-zinc-800 border border-zinc-700' title={session?.user.name as string}></img>
                     )}
                 </div>
-                <div className="p-4 min-h-screen text-zinc-100 bg-gradient-to-b from-zinc-950 via-[#0B1220] to-black">{children}</div>
+                <div className="p-4 h-full text-zinc-100 bg-gradient-to-b from-zinc-950 via-[#0B1220] to-black">{children}</div>
             </SidebarInset>
         </SidebarProvider>
     );

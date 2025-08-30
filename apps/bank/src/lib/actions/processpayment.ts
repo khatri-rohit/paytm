@@ -28,19 +28,10 @@ export const processpayment = async (onRampTransaction: any) => {
             body: JSON.stringify({ ...onRampTransaction }),
         });
         const result = await bankTrnasfrer.json();
-
-        // if (result.success) {
-        //     const onRampTransaction = await prisma.onRampTransaction.update({
-        //         where: {
-        //             id: transaction.id
-        //         },
-        //         data: {
-        //             processing: "SUCCESS",
-        //             updatedAt: getCurrentDate()
-        //         }
-        //     });
-        // }
-        console.log("Transaction Successfuly");
+        if (!bankTrnasfrer.ok || result?.success === false) {
+            throw new Error(result?.message || 'Failed to process payment');
+        }
+        console.log("Transaction Successfuly", transaction);
 
         return true;
     }

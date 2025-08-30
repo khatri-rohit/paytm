@@ -7,6 +7,7 @@ interface P2PItem {
     fromUserId?: number | string;
     senderName?: string | null;
     receiverName?: string | null;
+    status?: 'PENDING' | 'COMPLETED' | 'FAILED' | 'CANCELLED' | string;
 }
 
 interface P2PHistoryProps {
@@ -45,6 +46,15 @@ const P2PHistory = ({ icon, data = [], userId, formatDateTime, failed }: P2PHist
                             const title = name || label;
                             const dateStr = item?.timestamp ? formatDateTime(new Date(item.timestamp)) : '';
                             const signedAmount = `${isDebit ? '-' : '+'}${item?.amount}`;
+                            const status = (item?.status || '').toString().toUpperCase();
+                            const statusLabel = status === 'COMPLETED' ? 'Completed' : status === 'FAILED' ? 'Failed' : status === 'PENDING' ? 'Pending' : status === 'CANCELLED' ? 'Cancelled' : '';
+                            const statusClass = status === 'COMPLETED'
+                                ? 'ui:border-green-200 ui:bg-green-50 ui:text-green-700'
+                                : status === 'FAILED'
+                                    ? 'ui:border-red-200 ui:bg-red-50 ui:text-red-700'
+                                    : status === 'PENDING'
+                                        ? 'ui:border-amber-200 ui:bg-amber-50 ui:text-amber-700'
+                                        : 'ui:border-slate-200 ui:bg-slate-50 ui:text-slate-700';
                             return (
                                 <li key={item?.id} className="ui:py-2 ui:border-b ui:border-gray-200">
                                     <div className="ui:flex ui:justify-between ui:items-center">
@@ -52,9 +62,21 @@ const P2PHistory = ({ icon, data = [], userId, formatDateTime, failed }: P2PHist
                                             <span className="ui:text-sm ui:font-medium ui:text-slate-800">{title}</span>
                                             <span className="ui:text-xs ui:text-gray-500">{dateStr}</span>
                                         </div>
-                                        <span className={`ui:text-sm ui:font-medium ${isDebit ? 'ui:text-red-600' : 'ui:text-green-600'}`}>
-                                            {signedAmount}
-                                        </span>
+                                        <div className="ui:flex ui:items-center ui:gap-2">
+                                            <span className={`ui:text-sm ui:font-medium ${status === 'PENDING'
+                                                ? 'ui:text-amber-600'
+                                                : status === 'COMPLETED' && !isDebit
+                                                    ? 'ui:text-green-600'
+                                                    : 'ui:text-red-600'
+                                                }`}>
+                                                {(status === 'FAILED') && '⚠️'} {signedAmount}
+                                            </span>
+                                            {statusLabel && (
+                                                <span className={`ui:inline-flex ui:items-center ui:rounded-full ui:border ui:px-2 ui:py-0.5 ui:text-[10px] ${statusClass}`}>
+                                                    {statusLabel}
+                                                </span>
+                                            )}
+                                        </div>
                                     </div>
                                 </li>
                             );
