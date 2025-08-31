@@ -72,7 +72,12 @@ export default function ChartComponent() {
         // Simulate an API call to fetch new data
         const fetchData = async () => {
             setLoading(true);
-            const response = await fetch('/api/transaction-data');
+            const response = await fetch('/api/transaction-data', {
+                next: {
+                    revalidate: 60,
+                    tags: ['transaction-history']
+                } // revalidate every 60 seconds
+            });
             const newData = await response.json();
 
             updateChartData(newData.data);

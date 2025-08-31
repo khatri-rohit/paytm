@@ -1,8 +1,5 @@
 "use server";
 
-import { authOptions } from '@/app/lib/auth';
-import { getServerSession } from 'next-auth';
-import { headers } from 'next/headers';
 import { History, RefreshCcw } from 'lucide-react';
 import { formatDateTime } from '@/lib/getFormatTimeFormat';
 import { fetchOnRampHistory } from '../../lib/getOnRampTransaction';
@@ -21,7 +18,9 @@ export default async function BankPage() {
         <div className="p-4 lg:p-6">
             <div className="mb-6">
                 <h1 className="text-xl font-semibold">Bank Transfer</h1>
-                <p className="text-sm text-muted-foreground">Deposit money from your bank account.</p>
+                <p className="text-sm text-muted-foreground">
+                    Send money from your bank account.
+                </p>
             </div>
 
             <div className="flex justify-around gap-6">

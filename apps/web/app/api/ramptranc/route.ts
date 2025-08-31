@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server';
 import { getCurrentDate } from '../../lib/getFormatedDate';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/app/lib/auth';
+import { revalidateTag } from 'next/cache';
 
 export async function POST(req: Request) {
     try {
@@ -49,7 +50,7 @@ export async function POST(req: Request) {
                 createdAt: getCurrentDate()
             }
         });
-
+        revalidateTag('on-ramp');
         console.log("Transaction Created Successfully...", transaction);
         return NextResponse.json({
             success: true,

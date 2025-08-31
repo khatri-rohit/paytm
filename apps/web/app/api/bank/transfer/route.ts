@@ -24,6 +24,8 @@ export async function GET(req: Request) {
                 updatedAt: getCurrentDate()
             }
         });
+        revalidateTag('on-ramp');
+        revalidateTag('transaction-history');
         console.log("OnRamp Transaction Successfully", transaction);
         return NextResponse.json({
             success: true,
@@ -125,6 +127,7 @@ export async function POST(req: Request) {
         });
         console.log("Start Revalidation:");
         revalidateTag('p2p-transfer');
+        revalidateTag('transaction-history');
 
         return NextResponse.json({
             success: true,

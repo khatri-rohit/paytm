@@ -295,7 +295,7 @@ router.post('/p2ptransaction', async (req: Request, res: Response) => {
             return { sender, receiver };
         });
         console.log(transaction);
-
+        console.log("------- P2P Transaction Completed -------");
         return res.status(200).send({
             success: true,
             message: 'P2P Transaction Completed',
