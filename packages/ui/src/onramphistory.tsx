@@ -10,14 +10,17 @@ interface OnRampHistoryProps {
         accountLast4: string; // last 4 digits
     }>;
     formatDateTime: (date: Date) => string;
-    failed?: boolean;
-    refresh?: () => Promise<void>;
+    failed: boolean;
+    refresh: () => void;
     refreshIcon?: React.ReactNode;
     // Optional: currency symbol to prefix (₹, $, etc.)
     currencySymbol?: string;
+    isLoading: boolean;
+    isFetching: boolean;
+    LoadingIcon: React.ReactNode;
 }
 
-const OnRampHistory = ({ icon, data = [], failed, formatDateTime, refresh, refreshIcon, currencySymbol = '₹' }: OnRampHistoryProps) => {
+const OnRampHistory = ({ icon, data = [], failed, formatDateTime, refresh, refreshIcon, currencySymbol = '₹', isLoading, isFetching, LoadingIcon }: OnRampHistoryProps) => {
     const items = Array.isArray(data) ? data : [];
 
     const withCurrency = (val: string) => {
@@ -57,15 +60,20 @@ const OnRampHistory = ({ icon, data = [], failed, formatDateTime, refresh, refre
                         <h2 className="ui:text-sm ui:font-medium text-gray-600">Transfers</h2>
                     </div>
                     <div>
-                        {refresh && refreshIcon && (
-                            <button onClick={refresh} className="ui:p-1 ui:rounded-md ui:bg-gray-100 ui:hover:bg-gray-200" aria-label="Refresh transfers">
-                                {refreshIcon}
-                            </button>
-                        )}
+                        <button onClick={refresh} className={`ui:p-1 ui:rounded-md ui:bg-gray-100 ui:hover:bg-gray-200 ui:cursor-pointer ${isFetching ? 'ui:animate-spin' : ''}`} aria-label="Refresh transfers" title='Refresh'>
+                            {refreshIcon}
+                        </button>
                     </div>
                 </div>
 
-                {items.length === 0 ? (
+
+                {isLoading && (
+                    <div className="ui:py-4 ui:text-center ui:min-h-[200px] ui:flex ui:items-center ui:justify-center">
+                        {LoadingIcon}
+                    </div>
+                )}
+
+                {!isLoading && items.length === 0 ? (
                     <div className="ui:rounded-md ui:border ui:border-dashed ui:p-6 ui:text-center">
                         <p className="ui:text-sm ui:text-gray-600">No transfers yet</p>
                         <p className="ui:mt-1 ui:text-xs ui:text-gray-500">Your bank transfers will appear here.</p>
@@ -74,7 +82,7 @@ const OnRampHistory = ({ icon, data = [], failed, formatDateTime, refresh, refre
                         )}
                     </div>
                 ) : (
-                    <ul className="ui:mt-4">
+                    <ul className="ui:mt-4 ui:space-y-3 ui:max-h-[500px] ui:overflow-y-auto ui:pr-1">
                         {items.map((item) => {
                             const status = getStatus(item?.processing);
                             const { badge, amount } = statusStyle(status);

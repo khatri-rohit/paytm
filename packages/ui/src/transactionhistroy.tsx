@@ -3,10 +3,10 @@
 interface TransactionHistoryProps {
     icon: React.ReactNode;
     LoadingIcon: React.ReactNode;
-    data?: HistoryItem[];
+    data: HistoryItem[];
     formatDateTime: (date: Date) => string;
-    failed?: boolean;
-    loading?: boolean;
+    failed: boolean;
+    loading: boolean;
 }
 
 type TransactionType = 'CREDIT' | 'DEBIT' | 'TRANSFER_IN' | 'TRANSFER_OUT' | 'ON_RAMP' | string;

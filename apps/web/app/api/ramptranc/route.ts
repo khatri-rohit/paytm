@@ -13,7 +13,7 @@ export async function POST(req: Request) {
                 id: Number(userId)
             }
         });
-        console.log(user);
+
         if (!user) {
             return NextResponse.json({
                 success: false,
@@ -51,6 +51,8 @@ export async function POST(req: Request) {
             }
         });
         revalidateTag('on-ramp');
+        revalidateTag('transaction-history');
+
         console.log("Transaction Created Successfully...", transaction);
         return NextResponse.json({
             success: true,

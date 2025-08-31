@@ -1,18 +1,18 @@
-"use server";
+"use client";
 
-import { History, RefreshCcw } from 'lucide-react';
+import { Circle, History, RefreshCcw } from 'lucide-react';
 import { formatDateTime } from '@/lib/getFormatTimeFormat';
-import { fetchOnRampHistory } from '../../lib/getOnRampTransaction';
 import OnRampHistory from '@repo/ui/onramphistory';
 import BankForm from '@/components/BankForm';
+import { useGetBankHistoryQuery } from '@repo/store';
 
-export default async function BankPage() {
+export default function BankPage() {
     // const session = await getServerSession(authOptions);
     // const cookie = (await headers()).get('cookie') ?? '';
     // const base = process.env.NEXT_PUBLIC_APP_URL ?? '';
 
-    const items = await fetchOnRampHistory();
-    const failed = items.length === 0;
+    const { data, isLoading, isError, refetch, isFetching } = useGetBankHistoryQuery(null);
+    console.log(data);
 
     return (
         <div className="p-4 lg:p-6">
@@ -30,12 +30,15 @@ export default async function BankPage() {
 
                 <div className="flex-1 h-full">
                     <OnRampHistory
-                        refresh={fetchOnRampHistory}
-                        data={items}
+                        refresh={refetch}
+                        data={data?.data as any}
                         refreshIcon={<RefreshCcw className='h-3 w-3 text-gray-600' />}
                         icon={<History className="h-5 w-5 text-gray-600" />}
-                        failed={failed}
+                        failed={isError}
                         formatDateTime={formatDateTime}
+                        isLoading={isLoading}
+                        isFetching={isFetching}
+                        LoadingIcon={<Circle className='animate-spin h-10 w-10 text-gray-600' />}
                     />
                 </div>
             </div>

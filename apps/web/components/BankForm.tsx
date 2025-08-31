@@ -23,7 +23,6 @@ const BankForm = () => {
 
         const body = {
             userId: session.user.id,
-            // Temporarily use accountNumber as bankId input; adjust once you have bank id lookup
             bankId: Number(accountNumber),
             token,
             amount

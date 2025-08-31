@@ -12,24 +12,42 @@ interface P2PItem {
 
 interface P2PHistoryProps {
     icon: React.ReactNode;
-    data?: P2PItem[];
+    data: P2PItem[];
     userId: string | number;
     formatDateTime: (date: Date) => string;
-    failed?: boolean;
+    failed: boolean;
+    refresh: () => void;
+    refreshIcon: React.ReactNode;
+    isLoading: boolean;
+    isFetching: boolean;
+    LoadingIcon: React.ReactNode;
 }
 
-const P2PHistory = ({ icon, data = [], userId, formatDateTime, failed }: P2PHistoryProps) => {
+const P2PHistory = ({ icon, data = [], userId, formatDateTime, failed, refresh, refreshIcon, isLoading, isFetching, LoadingIcon }: P2PHistoryProps) => {
     const items = Array.isArray(data) ? data : [];
 
     return (
         <aside className="ui:w-full ui:h-full">
             <div className="ui:sticky ui:top-4 ui:rounded-xl ui:border ui:bg-white ui:p-5 ui:shadow-sm">
-                <div className="ui:mb-3 ui:flex ui:items-center ui:gap-2">
-                    {icon}
-                    <h2 className="ui:text-sm ui:font-medium text-gray-600">Transaction History</h2>
+                <div className="ui:mb-3 ui:flex ui:items-center ui:justify-between ui:gap-2">
+                    <div className='ui:flex ui:items-center ui:gap-2'>
+                        {icon}
+                        <h2 className="ui:text-sm ui:font-medium text-gray-600">Transfers</h2>
+                    </div>
+                    <div>
+                        <button onClick={refresh} className={`ui:p-1 ui:rounded-md ui:bg-gray-100 ui:hover:bg-gray-200 ui:cursor-pointer ${isFetching ? 'ui:animate-spin' : ''}`} aria-label="Refresh transfers" title='Refresh'>
+                            {refreshIcon}
+                        </button>
+                    </div>
                 </div>
 
-                {items.length === 0 ? (
+                {isLoading && (
+                    <div className="ui:py-4 ui:text-center ui:min-h-[500px] ui:flex ui:items-center ui:justify-center">
+                        {LoadingIcon}
+                    </div>
+                )}
+
+                {!isLoading && items.length === 0 ? (
                     <div className="ui:rounded-md ui:border ui:border-dashed ui:p-6 ui:text-center">
                         <p className="ui:text-sm ui:text-gray-600">No transactions yet</p>
                         <p className="ui:mt-1 ui:text-xs ui:text-gray-500">Your recent transfers will appear here.</p>
@@ -38,7 +56,7 @@ const P2PHistory = ({ icon, data = [], userId, formatDateTime, failed }: P2PHist
                         )}
                     </div>
                 ) : (
-                    <ul className="ui:mt-4">
+                    <ul className="ui:mt-4 ui:min-h-[500px] ui:overflow-auto ui:pr-0">
                         {items.map((item) => {
                             const isDebit = String(item?.fromUserId) === String(userId);
                             const label = isDebit ? 'Debit' : 'Credit';
