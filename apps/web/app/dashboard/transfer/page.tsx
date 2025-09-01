@@ -8,6 +8,11 @@ const Transfer = () => {
   const [amount, setAmount] = useState(0);
   const [bankId, setBankId] = useState(0);
 
+  /*
+     This Page is no longer in use. It is kept here for reference.
+     The functionality has been moved to the Bank Page.
+     It will be removed in the future.
+  */
   const sendMoney = async () => {
     try {
       const token = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
@@ -71,7 +76,11 @@ const Transfer = () => {
     }
   };
 
-
+  /*
+      This Page is no longer in use. It is kept here for reference.
+      The functionality has been moved to the Bank Page.
+      It will be removed in the future.
+  */
   return (
     <div className='text-black flex flex-col gap-3 bg-white p-4 rounded-md shadow-md'>
       <input type="text" className='border border-gray-300 rounded-md p-2 w-40' value={bankId} onChange={(e) => {

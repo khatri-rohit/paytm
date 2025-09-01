@@ -23,7 +23,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         <SidebarProvider>
             <AppSidebar setpageName={setpageName} />
             <SidebarInset>
-                <div className="sticky top-0 z-40 flex h-[61px] items-center justify-between gap-2 border-b border-zinc-800/60 bg-gradient-to-r from-zinc-950 via-[#0B1220] to-zinc-950 px-4 text-zinc-100">
+                <div className="sticky top-0 z-40 flex h-16 items-center justify-between gap-2 border-b border-zinc-800/60 bg-gradient-to-r from-zinc-950 via-[#0B1220] to-zinc-950 px-4 text-zinc-100">
                     <div className='flex items-center gap-2'>
                         <SidebarTrigger className="text-zinc-300 hover:bg-white/5 focus-visible:ring-2 focus-visible:ring-white/10" />
                         <h1 className="text-sm font-medium text-zinc-100">{pageName}</h1>

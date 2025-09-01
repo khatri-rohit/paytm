@@ -12,8 +12,6 @@ const P2PTransation = () => {
     const [submitting, setSubmitting] = useState(false);
     const [createP2PTransfer] = useCreateP2PTransferMutation();
 
-
-
     const transferMoney = async (formData: FormData) => {
         setError(null);
         if (status !== "authenticated") {

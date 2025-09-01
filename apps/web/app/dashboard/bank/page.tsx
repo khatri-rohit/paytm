@@ -1,10 +1,10 @@
 "use client";
 
 import { Circle, History, RefreshCcw } from 'lucide-react';
-import { formatDateTime } from '@/lib/getFormatTimeFormat';
 import OnRampHistory from '@repo/ui/onramphistory';
 import BankForm from '@/components/BankForm';
 import { useGetBankHistoryQuery } from '@repo/store';
+import { formatDateTime } from '@/lib/getFormatTimeFormat';
 
 export default function BankPage() {
     // const session = await getServerSession(authOptions);
@@ -12,7 +12,7 @@ export default function BankPage() {
     // const base = process.env.NEXT_PUBLIC_APP_URL ?? '';
 
     const { data, isLoading, isError, refetch, isFetching } = useGetBankHistoryQuery(null);
-    console.log(data);
+    console.log("Bank History:", data);
 
     return (
         <div className="p-4 lg:p-6">

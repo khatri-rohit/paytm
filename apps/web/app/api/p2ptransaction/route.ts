@@ -22,6 +22,7 @@ export async function GET(request: Request) {
         });
 
         // console.log("Fetched P2P transactions:", getP2PTransactions);
+        console.log("Fetched P2P transactions: ", getP2PTransactions.length);
 
         return NextResponse.json({
             success: true,

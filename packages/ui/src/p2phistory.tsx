@@ -26,6 +26,9 @@ interface P2PHistoryProps {
 const P2PHistory = ({ icon, data = [], userId, formatDateTime, failed, refresh, refreshIcon, isLoading, isFetching, LoadingIcon }: P2PHistoryProps) => {
     const items = Array.isArray(data) ? data : [];
 
+    const debit = items.reduce((acc, item) => String(item?.fromUserId) === String(userId) ? acc + Number(item.amount) : acc, 0);
+    const credit = items.reduce((acc, item) => String(item?.fromUserId) !== String(userId) ? acc + Number(item.amount) : acc, 0);
+
     return (
         <aside className="ui:w-full ui:h-full">
             <div className="ui:sticky ui:top-4 ui:rounded-xl ui:border ui:bg-white ui:p-5 ui:shadow-sm">
@@ -100,6 +103,19 @@ const P2PHistory = ({ icon, data = [], userId, formatDateTime, failed, refresh, 
                             );
                         })}
                     </ul>
+                )}
+
+                {!isLoading && items.length > 0 && (
+                    <div className="ui:rounded-md ui:border ui:border-dashed ui:p-2 ui:text-center ui:text-black">
+                        <p className="ui:mt-1 ui:text-lg ui:text-gray-500">
+                            <span className="ui:font-medium ui:text-slate-800">Debit: </span>
+                            <span className="ui:text-gray-500">{(debit)}</span>
+                        </p>
+                        <p className="ui:mt-1 ui:text-lg ui:text-gray-500">
+                            <span className="ui:font-medium ui:text-slate-800">Credit: </span>
+                            <span className="ui:text-gray-500">{(credit)}</span>
+                        </p>
+                    </div>
                 )}
             </div>
         </aside>

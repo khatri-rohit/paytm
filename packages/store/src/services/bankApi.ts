@@ -13,6 +13,14 @@ export const bankApi = createApi({
             query: (id) => `/user/${id}`,
             providesTags: (_res, _err, id) => [{ type: 'User', id }],
         }),
+        createBankTransfer: builder.mutation<{ success: boolean, message: string, transaction: any, error?: string; }, { userId: string, bankId: number, token: string, amount: string; }>({
+            query: (body) => ({
+                url: '/ramptranc',
+                method: 'POST',
+                body,
+            }),
+            invalidatesTags: ['on-ramp'],
+        }),
         createP2PTransfer: builder.mutation<{ success: boolean; message: string; error?: string; },
             { amount: number; password: string; description: string; number: string; }>({
                 query: (body) => ({
@@ -52,8 +60,9 @@ export const bankApi = createApi({
 });
 
 export const {
-    useGetUserByIdQuery,
     useCreateP2PTransferMutation,
+    useCreateBankTransferMutation,
+    useGetUserByIdQuery,
     useGetP2PHistoryQuery,
     useGetBankHistoryQuery,
 } = bankApi;

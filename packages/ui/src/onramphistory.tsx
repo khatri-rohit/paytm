@@ -38,6 +38,8 @@ const OnRampHistory = ({ icon, data = [], failed, formatDateTime, refresh, refre
         return 'PENDING';
     };
 
+    const amount = items.reduce((acc, item) => getStatus(item?.processing) === 'COMPLETED' ? acc + Number(item.amount) : acc, 0);
+
     const statusStyle = (status: string) => {
         switch (status) {
             case 'COMPLETED':
@@ -113,6 +115,15 @@ const OnRampHistory = ({ icon, data = [], failed, formatDateTime, refresh, refre
                             );
                         })}
                     </ul>
+                )}
+
+                {!isLoading && items.length > 0 && (
+                    <div className="ui:rounded-md ui:border ui:border-dashed ui:p-2 ui:text-center ui:text-black">
+                        <p className="ui:mt-1 ui:text-lg ui:text-gray-500">
+                            <span className="ui:font-medium ui:text-slate-800">Total Transaction Amount: </span>
+                            <span className="ui:text-gray-500">{(amount)}</span>
+                        </p>
+                    </div>
                 )}
             </div>
         </aside>

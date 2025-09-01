@@ -14,7 +14,7 @@ const P2PTransfer = () => {
     const session = useSession();
     // Fetch P2P history using the new RTK Query hook
     const { data, isLoading, isError, refetch, isFetching } = useGetP2PHistoryQuery(null);
-    // console.log(data);
+    console.log("P2P History:", data);
 
     // const session = await getServerSession(authOptions);
     // const cookie = (await headers()).get('cookie') ?? '';

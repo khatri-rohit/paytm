@@ -26,7 +26,8 @@ export async function GET(req: Request) {
         });
         revalidateTag('on-ramp');
         revalidateTag('transaction-history');
-        console.log("OnRamp Transaction Successfully", transaction);
+
+        console.log("OnRamp Transaction Successfully ");
         return NextResponse.json({
             success: true,
             message: "OnRamp Transaction Successfully",

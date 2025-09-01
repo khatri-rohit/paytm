@@ -22,7 +22,8 @@ export async function GET() {
             orderBy: { createdAt: 'desc' }
         });
 
-        console.log("Fetched transaction history:", history);
+        // console.log("Fetched transaction history:", history);
+        console.log("Fetched transaction history: ", history.length);
         return NextResponse.json({
             success: true,
             message: "Transaction history fetched successfully",

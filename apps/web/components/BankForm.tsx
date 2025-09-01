@@ -1,9 +1,11 @@
 'use client';
 
 import { useSession } from 'next-auth/react';
+import { useCreateBankTransferMutation } from '@repo/store';
 
 const BankForm = () => {
     const { data: session } = useSession();
+    const [createBankTransfer] = useCreateBankTransferMutation();
 
     async function submitOnRamp(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault();
@@ -11,12 +13,12 @@ const BankForm = () => {
         const amount = String(formData.get('amount') || '');
         const bankName = String(formData.get('bankName') || '');
         const accountNumber = String(formData.get('accountNumber') || '');
-        console.log(amount, bankName, accountNumber);
+
         if (!amount || !bankName || !accountNumber) {
             throw new Error('All fields are required');
         }
 
-        const base = process.env.NEXT_PUBLIC_APP_URL ?? '';
+        // const base = process.env.NEXT_PUBLIC_APP_URL ?? '';
         const token = Math.random().toString(36).slice(2) + Math.random().toString(36).slice(2);
 
         if (!session?.user?.id) throw new Error('Unauthorized');
@@ -28,23 +30,17 @@ const BankForm = () => {
             amount
         };
 
-        const res = await fetch(`${base}/api/ramptranc`, {
-            method: 'POST',
-            headers: { 'content-type': 'application/json', },
-            body: JSON.stringify(body),
-            next: { tags: ['on-ramp'] }
-        });
-        const result = await res.json();
-        console.log(result);
+        const { data } = await createBankTransfer(body);
+        console.log(data);
 
-        if (result.success && result.transaction?.id) {
-            window.open(`http://localhost:3001/transfer?token=${token}&id=${result.transaction.id}&info=${accountNumber || ''}`, '_blank', 'noopener noreferrer height=800,width=800');
+        if (data && data?.success && data?.transaction?.id) {
+            window.open(`http://localhost:3001/transfer?token=${token}&id=${data?.transaction?.id}&info=${accountNumber || ''}`, '_blank', 'noopener noreferrer height=800,width=800');
         }
 
-        if (!res.ok || result?.success === false) {
+        if (data?.success === false) {
             console.log("Failed to create on-ramp");
-            console.log(result?.message || 'Failed to create on-ramp');
-            alert(result?.message || 'Failed to create on-ramp');
+            console.log(data?.message || 'Failed to create on-ramp');
+            alert(data?.message || 'Failed to create on-ramp');
         }
     }
 
