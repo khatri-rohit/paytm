@@ -3,10 +3,13 @@
 interface TransactionHistoryProps {
     icon: React.ReactNode;
     LoadingIcon: React.ReactNode;
+    refreshIcon: React.ReactNode;
     data: HistoryItem[];
     formatDateTime: (date: Date) => string;
     failed: boolean;
     loading: boolean;
+    refresh: () => void;
+    currencySymbol: string;
 }
 
 type TransactionType = 'CREDIT' | 'DEBIT' | 'TRANSFER_IN' | 'TRANSFER_OUT' | 'ON_RAMP' | string;
@@ -22,14 +25,38 @@ interface HistoryItem {
     createdAt?: string | Date;
 }
 
-const TransactionHistory = ({ LoadingIcon, icon, data = [], formatDateTime, failed, loading }: TransactionHistoryProps) => {
+const TransactionHistory = ({ currencySymbol = '₹', LoadingIcon, icon, data = [], formatDateTime, failed, loading, refresh, refreshIcon }: TransactionHistoryProps) => {
     const items = Array.isArray(data) ? data : [];
+
+    const debit = items.reduce((acc, item) => (item.entryType === 'DEBIT' ? acc + Number(item.amount) : acc), 0);
+    const credit = items.reduce((acc, item) => (item.entryType === 'CREDIT' ? acc + Number(item.amount) : acc), 0);
+
+    function formatAmount(amount: string) {
+        const [intPart, decimalPart] = amount.toString().split('.');
+        const intWithCommas = intPart?.split('').reverse().reduce((acc: any, digit: any, index: any) => {
+            if (index > 0 && index % 3 === 0) {
+                acc.push(',');
+            }
+            acc.push(digit);
+            return acc;
+        }, []).reverse().join('');
+
+        return decimalPart ? `${intWithCommas}.${decimalPart}` : intWithCommas;
+    }
+
     return (
         <aside className="ui:w-full ui:h-full">
             <div className="ui:sticky ui:top-4 ui:rounded-xl ui:border ui:bg-white ui:p-5 ui:shadow-sm">
-                <div className="ui:mb-3 ui:flex ui:items-center ui:gap-2">
-                    {icon}
-                    <h2 className="ui:text-sm ui:font-medium text-gray-600">Transaction History</h2>
+                <div className="ui:mb-3 ui:flex ui:items-center ui:justify-between ui:gap-2">
+                    <div className='ui:flex ui:items-center ui:gap-2'>
+                        {icon}
+                        <h2 className="ui:text-sm ui:font-medium text-gray-600">Transfers</h2>
+                    </div>
+                    <div>
+                        <button onClick={refresh} className={`ui:p-1 ui:rounded-md ui:bg-gray-100 ui:hover:bg-gray-200 ui:cursor-pointer ${loading ? 'ui:animate-spin' : ''}`} aria-label="Refresh transfers" title='Refresh'>
+                            {refreshIcon}
+                        </button>
+                    </div>
                 </div>
 
                 {loading && (
@@ -37,6 +64,7 @@ const TransactionHistory = ({ LoadingIcon, icon, data = [], formatDateTime, fail
                         {LoadingIcon}
                     </div>
                 )}
+
 
                 {!loading && items.length === 0 ? (
                     <div className="ui:rounded-md ui:border ui:border-dashed ui:p-6 ui:text-center">
@@ -47,7 +75,7 @@ const TransactionHistory = ({ LoadingIcon, icon, data = [], formatDateTime, fail
                         )}
                     </div>
                 ) : (
-                    <div className="ui:mt-4 ui:max-h-[500px] ui:overflow-auto ui:pr-0 ui:-mr-5">
+                    <div className="ui:mt-4 ui:max-h-[450px] ui:overflow-auto ui:pr-0 ui:-mr-5">
                         <ul className="ui:pr-5">
                             {items.map((item) => {
                                 const entry = (item?.entryType || '').toString().toUpperCase();
@@ -78,6 +106,19 @@ const TransactionHistory = ({ LoadingIcon, icon, data = [], formatDateTime, fail
                                 );
                             })}
                         </ul>
+                    </div>
+                )}
+
+                {!loading && items.length > 0 && (
+                    <div className="ui:mt-3 ui:rounded-md ui:border ui:border-dashed ui:p-2 ui:text-center ui:text-black ui:flex ui:items-center ui:justify-center ui:gap-5 ui:shrink-0">
+                        <p className="ui:mt-1 ui:text-lg ui:text-gray-500">
+                            <span className="ui:font-medium ui:text-slate-800">Debit: </span>
+                            <span className="ui:text-gray-500">{currencySymbol} {formatAmount(debit.toString())}</span>
+                        </p>
+                        <p className="ui:mt-1 ui:text-lg ui:text-gray-500">
+                            <span className="ui:font-medium ui:text-slate-800">Credit: </span>
+                            <span className="ui:text-gray-500">{currencySymbol} {formatAmount(credit.toString())}</span>
+                        </p>
                     </div>
                 )}
             </div>

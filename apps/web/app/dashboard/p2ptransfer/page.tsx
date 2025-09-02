@@ -36,7 +36,7 @@ const P2PTransfer = () => {
                 <p className="text-sm text-muted-foreground">Send money securely to a contact or UPI ID.</p>
             </div>
 
-            <div className="flex justify-around gap-6">
+            <div className="flex items-start justify-around gap-6">
                 <div className="flex-1 flex justify-center items-center">
                     <P2PTransation />
                 </div>

@@ -22,7 +22,6 @@ interface OnRampHistoryProps {
 
 const OnRampHistory = ({ icon, data = [], failed, formatDateTime, refresh, refreshIcon, currencySymbol = '₹', isLoading, isFetching, LoadingIcon }: OnRampHistoryProps) => {
     const items = Array.isArray(data) ? data : [];
-
     const withCurrency = (val: string) => {
         const trimmed = val?.trim?.() ?? '';
         if (!currencySymbol) return trimmed?.startsWith('-') ? trimmed : `-${trimmed}`;
@@ -39,6 +38,19 @@ const OnRampHistory = ({ icon, data = [], failed, formatDateTime, refresh, refre
     };
 
     const amount = items.reduce((acc, item) => getStatus(item?.processing) === 'COMPLETED' ? acc + Number(item.amount) : acc, 0);
+
+    function formatAmount(amount: string) {
+        const [intPart, decimalPart] = amount.toString().split('.');
+        const intWithCommas = intPart?.split('').reverse().reduce((acc: any, digit: any, index: any) => {
+            if (index > 0 && index % 3 === 0) {
+                acc.push(',');
+            }
+            acc.push(digit);
+            return acc;
+        }, []).reverse().join('');
+
+        return decimalPart ? `${intWithCommas}.${decimalPart}` : intWithCommas;
+    }
 
     const statusStyle = (status: string) => {
         switch (status) {
@@ -121,7 +133,7 @@ const OnRampHistory = ({ icon, data = [], failed, formatDateTime, refresh, refre
                     <div className="ui:rounded-md ui:border ui:border-dashed ui:p-2 ui:text-center ui:text-black">
                         <p className="ui:mt-1 ui:text-lg ui:text-gray-500">
                             <span className="ui:font-medium ui:text-slate-800">Total Transaction Amount: </span>
-                            <span className="ui:text-gray-500">{(amount)}</span>
+                            <span className="ui:text-gray-500">{currencySymbol}{formatAmount(amount.toString())}</span>
                         </p>
                     </div>
                 )}

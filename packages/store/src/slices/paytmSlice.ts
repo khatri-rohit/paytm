@@ -18,16 +18,31 @@ export interface P2PItem {
     status?: 'PENDING' | 'COMPLETED' | 'FAILED' | 'CANCELLED' | string;
 }
 
+type TransactionType = 'CREDIT' | 'DEBIT' | 'TRANSFER_IN' | 'TRANSFER_OUT' | 'ON_RAMP' | string;
+type EntryType = 'CREDIT' | 'DEBIT' | string;
+
+export interface HistoryItem {
+    id: number | string;
+    userId?: number | string;
+    amount: string | number;
+    transactionType: TransactionType;
+    entryType?: EntryType;
+    description?: string | null;
+    createdAt?: string | Date;
+}
+
 interface InitialState {
     user: User | null;
     p2pTransaction: P2PItem[] | null;
     bankHistory: any[];
+    transactionHistory: HistoryItem[];
 }
 
 const initialState: InitialState = {
     user: null,
     p2pTransaction: [],
-    bankHistory: []
+    bankHistory: [],
+    transactionHistory: []
 };
 
 export const paytmSlice = createSlice({
@@ -43,9 +58,12 @@ export const paytmSlice = createSlice({
         setBankHistory: (state, action) => {
             state.bankHistory = action.payload;
         },
+        setTransactionHistroy: (state, action) => {
+            state.transactionHistory = action.payload;
+        },
     },
 });
 
-export const { setUser, setP2PTransactions, setBankHistory } = paytmSlice.actions;
+export const { setUser, setP2PTransactions, setBankHistory, setTransactionHistroy } = paytmSlice.actions;
 
 export default paytmSlice.reducer;

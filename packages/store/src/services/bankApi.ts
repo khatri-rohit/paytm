@@ -1,5 +1,5 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
-import type { User, P2PItem } from '../slices/paytmSlice';
+import type { User, P2PItem, HistoryItem } from '../slices/paytmSlice';
 import { setP2PTransactions, setBankHistory } from '../slices/paytmSlice';
 
 const baseUrl = process.env.NEXT_PUBLIC_BANK_API_URL || 'http://localhost:3000/api';
@@ -30,6 +30,19 @@ export const bankApi = createApi({
                 }),
                 invalidatesTags: ['P2P'],
             }),
+        getTransactionHistory: builder.query<{ data: HistoryItem[]; success: boolean; }, null>({
+            query: () => `/transaction-history`,
+            async onQueryStarted(_arg, { dispatch, queryFulfilled }) {
+                try {
+                    const { data } = await queryFulfilled;
+                    dispatch(setP2PTransactions({ data }));
+                } catch (error) {
+                    const err = error as Error;
+                    console.error('Error fetching P2P transactions:', err.message);
+                }
+            },
+            providesTags: ['on-ramp', 'P2P'],
+        }),
         getP2PHistory: builder.query<{ data: P2PItem[]; success: boolean; }, null>({
             query: () => `/p2ptransaction`,
             async onQueryStarted(_arg, { dispatch, queryFulfilled }) {
@@ -65,4 +78,5 @@ export const {
     useGetUserByIdQuery,
     useGetP2PHistoryQuery,
     useGetBankHistoryQuery,
+    useGetTransactionHistoryQuery,
 } = bankApi;

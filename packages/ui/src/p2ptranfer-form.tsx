@@ -68,8 +68,8 @@ const P2PTransferForm: React.FC<Props> = ({ transferFn }) => {
             setNumber("");
             setPassword("");
             setDescription("");
-        } finally {
-            setSubmitting(false);
+        } catch (e) {
+            console.error(e);
         }
     };
 

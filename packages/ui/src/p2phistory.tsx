@@ -21,17 +21,31 @@ interface P2PHistoryProps {
     isLoading: boolean;
     isFetching: boolean;
     LoadingIcon: React.ReactNode;
+    currencySymbol?: string;
 }
 
-const P2PHistory = ({ icon, data = [], userId, formatDateTime, failed, refresh, refreshIcon, isLoading, isFetching, LoadingIcon }: P2PHistoryProps) => {
+const P2PHistory = ({ icon, data = [], userId, formatDateTime, failed, refresh, refreshIcon, isLoading, isFetching, LoadingIcon, currencySymbol = '₹', }: P2PHistoryProps) => {
     const items = Array.isArray(data) ? data : [];
 
     const debit = items.reduce((acc, item) => String(item?.fromUserId) === String(userId) ? acc + Number(item.amount) : acc, 0);
     const credit = items.reduce((acc, item) => String(item?.fromUserId) !== String(userId) ? acc + Number(item.amount) : acc, 0);
 
+    function formatAmount(amount: string) {
+        const [intPart, decimalPart] = amount.toString().split('.');
+        const intWithCommas = intPart?.split('').reverse().reduce((acc: any, digit: any, index: any) => {
+            if (index > 0 && index % 3 === 0) {
+                acc.push(',');
+            }
+            acc.push(digit);
+            return acc;
+        }, []).reverse().join('');
+
+        return decimalPart ? `${intWithCommas}.${decimalPart}` : intWithCommas;
+    }
+
     return (
-        <aside className="ui:w-full ui:h-full">
-            <div className="ui:sticky ui:top-4 ui:rounded-xl ui:border ui:bg-white ui:p-5 ui:shadow-sm">
+        <aside className="ui:w-full ui:bg-white ui:border ui:rounded-xl">
+            <div className="ui:sticky ui:top-4 ui:p-5 ui:shadow-sm ui:flex ui:flex-col">
                 <div className="ui:mb-3 ui:flex ui:items-center ui:justify-between ui:gap-2">
                     <div className='ui:flex ui:items-center ui:gap-2'>
                         {icon}
@@ -45,21 +59,21 @@ const P2PHistory = ({ icon, data = [], userId, formatDateTime, failed, refresh, 
                 </div>
 
                 {isLoading && (
-                    <div className="ui:py-4 ui:text-center ui:min-h-[500px] ui:flex ui:items-center ui:justify-center">
+                    <div className="ui:h-full ui:text-center ui:flex ui:items-center ui:justify-center">
                         {LoadingIcon}
                     </div>
                 )}
 
                 {!isLoading && items.length === 0 ? (
-                    <div className="ui:rounded-md ui:border ui:border-dashed ui:p-6 ui:text-center">
+                    <div className="ui:h-full ui:rounded-md ui:border ui:border-dashed ui:p-6 ui:text-center ui:flex ui:flex-col ui:items-center ui:justify-center">
                         <p className="ui:text-sm ui:text-gray-600">No transactions yet</p>
                         <p className="ui:mt-1 ui:text-xs ui:text-gray-500">Your recent transfers will appear here.</p>
                         {failed && (
                             <p className="ui:mt-3 ui:text-xs ui:text-red-600">Failed to load transaction history.</p>
                         )}
                     </div>
-                ) : (
-                    <ul className="ui:mt-4 ui:min-h-[500px] ui:overflow-auto ui:pr-0">
+                ) : !isLoading && items.length > 0 ? (
+                    <ul className="ui:h-[500px] ui:overflow-auto ui:pr-5 ui:-mr-5">
                         {items.map((item) => {
                             const isDebit = String(item?.fromUserId) === String(userId);
                             const label = isDebit ? 'Debit' : 'Credit';
@@ -103,17 +117,17 @@ const P2PHistory = ({ icon, data = [], userId, formatDateTime, failed, refresh, 
                             );
                         })}
                     </ul>
-                )}
+                ) : null}
 
                 {!isLoading && items.length > 0 && (
-                    <div className="ui:rounded-md ui:border ui:border-dashed ui:p-2 ui:text-center ui:text-black">
+                    <div className="ui:mt-3 ui:rounded-md ui:border ui:border-dashed ui:p-2 ui:text-center ui:text-black ui:flex ui:items-center ui:justify-center ui:gap-5 ui:shrink-0">
                         <p className="ui:mt-1 ui:text-lg ui:text-gray-500">
                             <span className="ui:font-medium ui:text-slate-800">Debit: </span>
-                            <span className="ui:text-gray-500">{(debit)}</span>
+                            <span className="ui:text-gray-500">{currencySymbol} {formatAmount(debit.toString())}</span>
                         </p>
                         <p className="ui:mt-1 ui:text-lg ui:text-gray-500">
                             <span className="ui:font-medium ui:text-slate-800">Credit: </span>
-                            <span className="ui:text-gray-500">{(credit)}</span>
+                            <span className="ui:text-gray-500">{currencySymbol} {formatAmount(credit.toString())}</span>
                         </p>
                     </div>
                 )}

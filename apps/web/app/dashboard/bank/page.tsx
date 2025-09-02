@@ -28,7 +28,7 @@ export default function BankPage() {
                     <BankForm />
                 </div>
 
-                <div className="flex-1 h-full">
+                <div className="flex-1 h-full p-4 shadow rounded-lg">
                     <OnRampHistory
                         refresh={refetch}
                         data={data?.data as any}
