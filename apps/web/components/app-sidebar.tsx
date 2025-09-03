@@ -44,9 +44,6 @@ export function AppSidebar({ setpageName }: { setpageName: Dispatch<SetStateActi
                         <span className="text-sm font-semibold tracking-tight bg-gradient-to-r from-zinc-100 to-zinc-300 bg-clip-text text-transparent">
                             Paytm
                         </span>
-                        {/* <span className="ml-1 rounded bg-white/5 px-1.5 py-0.5 text-[10px] leading-none text-zinc-300 ring-1 ring-inset ring-white/10">
-                            Demo
-                        </span> */}
                     </Link>
                 </div>
             </SidebarHeader>
@@ -104,9 +101,8 @@ export function AppSidebar({ setpageName }: { setpageName: Dispatch<SetStateActi
                 <div className="flex flex-col gap-2 px-2 pb-2">
                     {status === 'authenticated' ? (
                         <Button
-                            variant="outline"
                             onClick={() => signOut()}
-                            className="border-zinc-700 text-zinc-800 hover:bg-white/5 hover:text-zinc-100 cursor-pointer"
+                            className="w-full border border-zinc-700 bg-zinc-900 text-zinc-100 hover:bg-zinc-800"
                         >
                             Sign out
                         </Button>

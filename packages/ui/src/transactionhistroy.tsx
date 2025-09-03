@@ -25,11 +25,25 @@ interface HistoryItem {
     createdAt?: string | Date;
 }
 
-const TransactionHistory = ({ currencySymbol = '₹', LoadingIcon, icon, data = [], formatDateTime, failed, loading, refresh, refreshIcon }: TransactionHistoryProps) => {
+const TransactionHistory = ({
+    currencySymbol = '₹',
+    LoadingIcon,
+    icon,
+    data = [],
+    formatDateTime,
+    failed,
+    loading,
+    refresh,
+    refreshIcon
+}: TransactionHistoryProps) => {
     const items = Array.isArray(data) ? data : [];
 
-    const debit = items.reduce((acc, item) => (item.entryType === 'DEBIT' ? acc + Number(item.amount) : acc), 0);
-    const credit = items.reduce((acc, item) => (item.entryType === 'CREDIT' ? acc + Number(item.amount) : acc), 0);
+    const debit = items.reduce((acc, item) =>
+        (item.entryType === 'DEBIT' ? acc + Number(item.amount) : acc), 0
+    );
+    const credit = items.reduce((acc, item) =>
+        (item.entryType === 'CREDIT' ? acc + Number(item.amount) : acc), 0
+    );
 
     function formatAmount(amount: string) {
         const [intPart, decimalPart] = amount.toString().split('.');
@@ -44,39 +58,80 @@ const TransactionHistory = ({ currencySymbol = '₹', LoadingIcon, icon, data = 
         return decimalPart ? `${intWithCommas}.${decimalPart}` : intWithCommas;
     }
 
+    const getTypeLabel = (type: string) => {
+        const upperType = type.toUpperCase();
+        switch (upperType) {
+            case 'CREDIT': return 'Credit';
+            case 'DEBIT': return 'Debit';
+            case 'TRANSFER_IN': return 'Transfer In';
+            case 'TRANSFER_OUT': return 'Transfer Out';
+            case 'ON_RAMP': return 'On Ramp';
+            case 'P2P_TRANSFER': return 'P2P Transfer';
+            default: return 'Transaction';
+        }
+    };
+
+    const getTypeIcon = (type: string, isDebit: boolean) => {
+        const upperType = type.toUpperCase();
+        if (upperType.includes('TRANSFER') || upperType.includes('P2P')) {
+            return isDebit ? '↗️' : '↙️';
+        }
+        return isDebit ? '📤' : '📥';
+    };
+
     return (
         <aside className="ui:w-full ui:h-full">
-            <div className="ui:sticky ui:top-4 ui:rounded-xl ui:border ui:bg-white ui:p-5 ui:shadow-sm">
+            <div className="ui:sticky ui:top-4 ui:rounded-xl ui:border ui:bg-white dark:ui:bg-slate-900/90 dark:ui:border-slate-700 ui:p-3 sm:ui:p-4 lg:ui:p-5 ui:shadow-sm ui:backdrop-blur-sm">
+                {/* Header - Responsive */}
                 <div className="ui:mb-3 ui:flex ui:items-center ui:justify-between ui:gap-2">
-                    <div className='ui:flex ui:items-center ui:gap-2'>
-                        {icon}
-                        <h2 className="ui:text-sm ui:font-medium text-gray-600">Transfers</h2>
+                    <div className='ui:flex ui:items-center ui:gap-2 ui:min-w-0'>
+                        <div className="ui:flex-shrink-0">
+                            {icon}
+                        </div>
+                        <h2 className="ui:text-sm sm:ui:text-base ui:font-medium ui:text-gray-600 dark:ui:text-gray-300 ui:truncate">
+                            <span className="sm:ui:hidden">History</span>
+                            <span className="ui:hidden sm:ui:inline">Transaction History</span>
+                        </h2>
                     </div>
-                    <div>
-                        <button onClick={refresh} className={`ui:p-1 ui:rounded-md ui:bg-gray-100 ui:hover:bg-gray-200 ui:cursor-pointer ${loading ? 'ui:animate-spin' : ''}`} aria-label="Refresh transfers" title='Refresh'>
+                    <button
+                        onClick={refresh}
+                        className='ui:p-1.5 sm:ui:p-2 ui:rounded-md ui:bg-gray-100 dark:ui:bg-gray-800 ui:hover:bg-gray-200 dark:ui:hover:bg-gray-700 ui:cursor-pointer ui:transition-colors ui:flex-shrink-0'
+                        aria-label="Refresh transfers"
+                        title='Refresh'
+                    >
+                        <span className={`ui:block ${loading ? 'ui:animate-spin' : ''}`}>
                             {refreshIcon}
-                        </button>
-                    </div>
+                        </span>
+                    </button>
                 </div>
 
+                {/* Loading State */}
                 {loading && (
-                    <div className="ui:py-4 ui:text-center ui:min-h-[500px] ui:flex ui:items-center ui:justify-center">
-                        {LoadingIcon}
+                    <div className="ui:py-8 sm:ui:py-12 ui:text-center ui:min-h-[300px] sm:ui:min-h-[400px] lg:ui:min-h-[500px] ui:flex ui:items-center ui:justify-center">
+                        <div className="ui:flex ui:flex-col ui:items-center ui:gap-3">
+                            {LoadingIcon}
+                            <span className="ui:text-sm ui:text-gray-500 dark:ui:text-gray-400">Loading transactions...</span>
+                        </div>
                     </div>
                 )}
 
-
+                {/* Empty State */}
                 {!loading && items.length === 0 ? (
-                    <div className="ui:rounded-md ui:border ui:border-dashed ui:p-6 ui:text-center">
-                        <p className="ui:text-sm ui:text-gray-600">No transactions yet</p>
-                        <p className="ui:mt-1 ui:text-xs ui:text-gray-500">Your recent transfers will appear here.</p>
-                        {failed && (
-                            <p className="ui:mt-3 ui:text-xs ui:text-red-600">Failed to load transaction history.</p>
-                        )}
+                    <div className="ui:rounded-md ui:border ui:border-dashed ui:border-gray-300 dark:ui:border-gray-600 ui:p-4 sm:ui:p-6 ui:text-center">
+                        <div className="ui:space-y-2">
+                            <p className="ui:text-sm sm:ui:text-base ui:text-gray-600 dark:ui:text-gray-300">No transactions yet</p>
+                            <p className="ui:text-xs sm:ui:text-sm ui:text-gray-500 dark:ui:text-gray-400">Your recent transfers will appear here.</p>
+                            {failed && (
+                                <p className="ui:mt-3 ui:text-xs sm:ui:text-sm ui:text-red-600 dark:ui:text-red-400">
+                                    Failed to load transaction history.
+                                </p>
+                            )}
+                        </div>
                     </div>
-                ) : (
-                    <div className="ui:mt-4 ui:max-h-[450px] ui:overflow-auto ui:pr-0 ui:-mr-5">
-                        <ul className="ui:pr-5">
+                ) : !loading && items.length > 0 ? (
+                    <>
+                        {/* Transaction List - Responsive */}
+                        <div className="ui:mt-4 ui:max-h-[300px] sm:ui:max-h-[350px] lg:ui:max-h-[450px] ui:overflow-auto ui:pr-1 ui:space-y-1">
                             {items.map((item) => {
                                 const entry = (item?.entryType || '').toString().toUpperCase();
                                 const type = (item?.transactionType || '').toString().toUpperCase();
@@ -84,43 +139,85 @@ const TransactionHistory = ({ currencySymbol = '₹', LoadingIcon, icon, data = 
                                     ? entry
                                     : (type === 'CREDIT' || type === 'TRANSFER_IN' || type === 'ON_RAMP') ? 'CREDIT' : 'DEBIT';
                                 const isDebit = inferredEntry === 'DEBIT';
-                                const typeLabel = type === 'CREDIT' ? 'Credit'
-                                    : type === 'DEBIT' ? 'Debit'
-                                        : type === 'TRANSFER_IN' ? 'Transfer In'
-                                            : type === 'TRANSFER_OUT' ? 'Transfer Out'
-                                                : type === 'ON_RAMP' ? 'On Ramp' : type === 'P2P_TRANSFER' ? 'P2P Transfer' : 'Transaction';
+                                const typeLabel = getTypeLabel(type);
+                                const typeIcon = getTypeIcon(type, isDebit);
                                 const dateStr = item?.createdAt ? formatDateTime(new Date(item.createdAt as any)) : '';
                                 const signedAmount = `${isDebit ? '-' : '+'}${item?.amount}`;
+                                const amountColor = isDebit ? 'ui:text-red-600 dark:ui:text-red-400' : 'ui:text-green-600 dark:ui:text-green-400';
+
                                 return (
-                                    <li key={item?.id} className="ui:py-2 ui:border-b ui:border-gray-200">
-                                        <div className="ui:flex ui:justify-between ui:items-center">
-                                            <div className="ui:flex ui:flex-col">
-                                                <span className="ui:text-sm ui:font-medium ui:text-slate-800">{typeLabel}</span>
-                                                <span className="ui:text-[11px] ui:text-gray-500">{dateStr}</span>
+                                    <div key={item?.id} className="ui:py-3 ui:border-b ui:border-gray-200 dark:ui:border-gray-700 ui:last:border-b-0">
+                                        <div className="ui:flex ui:justify-between ui:items-start ui:gap-3">
+                                            {/* Left Content */}
+                                            <div className="ui:flex ui:items-start ui:gap-3 ui:min-w-0 ui:flex-1">
+                                                {/* Icon - Hidden on small screens */}
+                                                <div className="ui:hidden sm:ui:flex ui:items-center ui:justify-center ui:w-8 ui:h-8 ui:rounded-full ui:bg-gray-100 dark:ui:bg-gray-800 ui:text-sm ui:flex-shrink-0">
+                                                    {typeIcon}
+                                                </div>
+
+                                                <div className="ui:flex ui:flex-col ui:min-w-0 ui:flex-1 ui:space-y-1">
+                                                    <div className="ui:flex ui:items-center ui:gap-2">
+                                                        {/* Mobile: Show icon inline */}
+                                                        <span className="ui:text-sm sm:ui:hidden">{typeIcon}</span>
+                                                        <span className="ui:text-sm sm:ui:text-base ui:font-medium ui:text-slate-800 dark:ui:text-slate-200 ui:truncate">
+                                                            {typeLabel}
+                                                        </span>
+                                                        {/* Mobile: Show amount here */}
+                                                        <div className="ui:flex sm:ui:hidden ui:ml-auto ui:flex-shrink-0">
+                                                            <span className={`ui:text-sm ui:font-medium ${amountColor}`}>
+                                                                {signedAmount}
+                                                            </span>
+                                                        </div>
+                                                    </div>
+
+                                                    {/* Description - if available */}
+                                                    {item.description && (
+                                                        <span className="ui:text-xs ui:text-gray-500 dark:ui:text-gray-400 ui:truncate">
+                                                            {item.description}
+                                                        </span>
+                                                    )}
+
+                                                    <span className="ui:text-[11px] sm:ui:text-xs ui:text-gray-500 dark:ui:text-gray-400">
+                                                        {dateStr}
+                                                    </span>
+                                                </div>
                                             </div>
-                                            <span className={`ui:text-sm ui:font-medium ${isDebit ? 'ui:text-red-600' : 'ui:text-green-600'}`}>
-                                                {signedAmount}
-                                            </span>
+
+                                            {/* Desktop: Amount */}
+                                            <div className="ui:hidden sm:ui:flex ui:flex-shrink-0">
+                                                <span className={`ui:text-sm sm:ui:text-base ui:font-medium ${amountColor}`}>
+                                                    {signedAmount}
+                                                </span>
+                                            </div>
                                         </div>
-                                    </li>
+                                    </div>
                                 );
                             })}
-                        </ul>
-                    </div>
-                )}
+                        </div>
 
-                {!loading && items.length > 0 && (
-                    <div className="ui:mt-3 ui:rounded-md ui:border ui:border-dashed ui:p-2 ui:text-center ui:text-black ui:flex ui:items-center ui:justify-center ui:gap-5 ui:shrink-0">
-                        <p className="ui:mt-1 ui:text-lg ui:text-gray-500">
-                            <span className="ui:font-medium ui:text-slate-800">Debit: </span>
-                            <span className="ui:text-gray-500">{currencySymbol} {formatAmount(debit.toString())}</span>
-                        </p>
-                        <p className="ui:mt-1 ui:text-lg ui:text-gray-500">
-                            <span className="ui:font-medium ui:text-slate-800">Credit: </span>
-                            <span className="ui:text-gray-500">{currencySymbol} {formatAmount(credit.toString())}</span>
-                        </p>
-                    </div>
-                )}
+                        {/* Summary - Responsive */}
+                        <div className="ui:mt-4 ui:rounded-md ui:border ui:border-dashed ui:border-gray-300 dark:ui:border-gray-600 ui:p-3 sm:ui:p-4 ui:text-center ui:bg-gray-50/50 dark:ui:bg-gray-800/50">
+                            <div className="ui:flex ui:flex-col sm:ui:flex-row ui:items-center ui:justify-center ui:gap-3 sm:ui:gap-6">
+                                <div className="ui:flex ui:items-center ui:gap-2">
+                                    <span className="ui:text-sm sm:ui:text-base ui:font-medium ui:text-slate-800 dark:ui:text-slate-200">
+                                        Debit:
+                                    </span>
+                                    <span className="ui:text-sm sm:ui:text-base ui:font-semibold ui:text-red-600 dark:ui:text-red-400">
+                                        {currencySymbol} {formatAmount(debit.toString())}
+                                    </span>
+                                </div>
+                                <div className="ui:flex ui:items-center ui:gap-2">
+                                    <span className="ui:text-sm sm:ui:text-base ui:font-medium ui:text-slate-800 dark:ui:text-slate-200">
+                                        Credit:
+                                    </span>
+                                    <span className="ui:text-sm sm:ui:text-base ui:font-semibold ui:text-green-600 dark:ui:text-green-400">
+                                        {currencySymbol} {formatAmount(credit.toString())}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </>
+                ) : null}
             </div>
         </aside>
     );

@@ -3,6 +3,7 @@ import type { User, P2PItem, HistoryItem } from '../slices/paytmSlice';
 import { setP2PTransactions, setBankHistory } from '../slices/paytmSlice';
 
 const baseUrl = process.env.NEXT_PUBLIC_BANK_API_URL || 'http://localhost:3000/api';
+const anotherBaseUrl = process.env.NEXT_PUBLIC_BANK_API_URL || 'http://localhost:5501/api';
 
 export const bankApi = createApi({
     reducerPath: 'bankApi',
@@ -21,15 +22,18 @@ export const bankApi = createApi({
             }),
             invalidatesTags: ['on-ramp'],
         }),
-        createP2PTransfer: builder.mutation<{ success: boolean; message: string; error?: string; },
-            { amount: number; password: string; description: string; number: string; }>({
-                query: (body) => ({
-                    url: '/bank/transfer',
-                    method: 'POST',
-                    body,
-                }),
-                invalidatesTags: ['P2P'],
+        createP2PTransfer: builder.mutation<{ success: boolean; message: string; error?: string; }, { amount: number; password: string; description: string; number: string; }>({
+            query: (body) => ({
+                url: '/bank/transfer',
+                method: 'POST',
+                body,
             }),
+            invalidatesTags: ['P2P'],
+        }),
+        updateOnRampTransaction: builder.query<{ success: boolean; message: string; }, string>({
+            query: (token) => `bank/transfer?token=${token}`,
+            providesTags: ['on-ramp'],
+        }),
         getTransactionHistory: builder.query<{ data: HistoryItem[]; success: boolean; }, null>({
             query: () => `/transaction-history`,
             async onQueryStarted(_arg, { dispatch, queryFulfilled }) {

@@ -15,6 +15,7 @@ dotenv.config();
 
 const app = express();
 const port = process.env.PORT || 5501;
+const baseUrl = process.env.NEXT_PUBLIC_BANK_API_URL || 'http://localhost:3000';
 
 app.use(cors());
 app.use(express.json());
@@ -46,7 +47,7 @@ app.post('/api/bank/transfer', async (req: Request, res: Response) => {
             });
         }
 
-        await fetch(`http://localhost:3000/api/bank/transfer?token=${verifyOnRampTransaction.token}`);
+        await fetch(`${baseUrl}/api/bank/transfer?token=${verifyOnRampTransaction.token}`);
 
         res.send({
             success: true,

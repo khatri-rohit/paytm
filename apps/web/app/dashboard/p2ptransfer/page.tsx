@@ -3,48 +3,44 @@
 import { authOptions } from '@/app/lib/auth';
 import P2PTransation from '@/components/P2PTransation';
 import P2PHistory from "@repo/ui/p2phistory";
-import { Circle, History, RefreshCcw } from 'lucide-react';
-import { getServerSession } from 'next-auth';
-import { headers } from 'next/headers';
+import { Circle, History, RefreshCcw, Send } from 'lucide-react';
 import { formatDateTime } from '@/lib/getFormatTimeFormat';
 import { useSession } from 'next-auth/react';
 import { useGetP2PHistoryQuery } from '@repo/store';
 
 const P2PTransfer = () => {
     const session = useSession();
-    // Fetch P2P history using the new RTK Query hook
     const { data, isLoading, isError, refetch, isFetching } = useGetP2PHistoryQuery(null);
-    console.log("P2P History:", data);
-
-    // const session = await getServerSession(authOptions);
-    // const cookie = (await headers()).get('cookie') ?? '';
-    // const base = process.env.NEXT_PUBLIC_APP_URL ?? '';
-    // const response = await fetch(`${base}/api/p2ptransaction`, {
-    //     method: "GET",
-    //     headers: { cookie },
-    //     next: { tags: ['p2p-transfer'] }
-    // });
-
-    // const data = await response.json().catch(() => ({ success: false, data: [] }));
-    // console.log(data);
-    // change schema to categories data into debit and credit for UI histroy
 
     return (
-        <div className="p-4 lg:p-6">
-            <div className="mb-6">
-                <h1 className="text-xl font-semibold">P2P Transfer</h1>
-                <p className="text-sm text-muted-foreground">Send money securely to a contact or UPI ID.</p>
+        <div>
+            {/* Page Header */}
+            <div className="mb-6 sm:mb-8">
+                <div className="flex items-center gap-3 mb-2">
+                    <div className="flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-br from-green-500 to-green-600 text-white">
+                        <Send className="w-5 h-5 sm:w-6 sm:h-6" />
+                    </div>
+                    <div>
+                        <h2 className="text-lg sm:text-xl font-semibold text-white">Send Money</h2>
+                        <p className="text-xs sm:text-sm text-zinc-400">Transfers are instant and secure</p>
+                    </div>
+                </div>
             </div>
 
-            <div className="flex items-start justify-around gap-6">
-                <div className="flex-1 flex justify-center items-center">
-                    <P2PTransation />
+            {/* Responsive Layout */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 h-full">
+                {/* Transfer Form */}
+                <div className="order-2 lg:order-1 flex justify-center items-start">
+                    <div className="w-full max-w-md">
+                        <P2PTransation />
+                    </div>
                 </div>
 
-                {/* Right: History placeholder */}
-                <div className="flex-1">
-                    <P2PHistory data={data?.data as any}
-                        icon={<History className="h-5 w-5 text-gray-600" />}
+                {/* History Section */}
+                <div className="order-1 lg:order-2 min-h-[400px] sm:min-h-[500px]">
+                    <P2PHistory
+                        data={data?.data as any}
+                        icon={<History className="h-4 w-4 sm:h-5 sm:w-5 text-gray-600" />}
                         failed={isError}
                         userId={session.data?.user.id as string}
                         formatDateTime={formatDateTime}
@@ -52,7 +48,8 @@ const P2PTransfer = () => {
                         refresh={refetch}
                         isLoading={isLoading}
                         isFetching={isFetching}
-                        LoadingIcon={<Circle className='animate-spin h-10 w-10 text-gray-600' />} />
+                        LoadingIcon={<Circle className='animate-spin h-6 w-6 sm:h-8 sm:w-8 lg:h-10 lg:w-10 text-gray-600' />}
+                    />
                 </div>
             </div>
         </div>

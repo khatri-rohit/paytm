@@ -31,7 +31,7 @@ export interface HistoryItem {
     createdAt?: string | Date;
 }
 
-interface InitialState {
+export interface InitialState {
     user: User | null;
     p2pTransaction: P2PItem[] | null;
     bankHistory: any[];

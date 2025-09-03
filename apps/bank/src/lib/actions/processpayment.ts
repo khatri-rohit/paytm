@@ -1,7 +1,6 @@
 "use server";
 
 import { prisma } from '@repo/db';
-import { getCurrentDate } from '../getFormatedDate';
 
 export const processpayment = async (onRampTransaction: any) => {
     try {

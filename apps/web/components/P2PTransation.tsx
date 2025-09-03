@@ -5,6 +5,8 @@ import { useSession } from "next-auth/react";
 import P2PTransferForm from "@repo/ui/p2ptranfer-form";
 import { toast } from "sonner";
 import { useCreateP2PTransferMutation } from '@repo/store';
+import { cn } from "@/lib/utils";
+
 
 const P2PTransation = () => {
     const { status } = useSession();
@@ -75,7 +77,7 @@ const P2PTransation = () => {
     };
 
     return (
-        <P2PTransferForm transferFn={transferMoney} />
+        <P2PTransferForm transferFn={transferMoney} cn={cn} />
     );
 };
 
