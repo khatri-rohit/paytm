@@ -3,7 +3,7 @@ import { headers } from 'next/headers';
 
 export const fetchOnRampHistory = async () => {
     const cookie = (await headers()).get('cookie') ?? '';
-    const base = process.env.NEXT_PUBLIC_APP_URL ?? '';
+    const base = process.env.VERCEL_URL ?? 'http://localhost:3000';
     const res = await fetch(`${base}/api/ramptranc`, {
         method: 'GET',
         headers: { cookie },
