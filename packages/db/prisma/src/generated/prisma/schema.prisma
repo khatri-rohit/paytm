@@ -1,0 +1,116 @@
+generator client {
+  provider      = "prisma-client-js"
+  output        = "./src/generated/prisma"
+  binaryTargets = ["native", "rhel-openssl-1.0.x", "rhel-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  bankId    Int?     @unique
+  email     String?  @unique
+  name      String?
+  number    String   @unique
+  password  String
+  isNewUser Boolean
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  balance   Balance?
+
+  // Transactions
+  OnRampTransaction  OnRampTransaction[]
+  sentTransfers      P2PTransfer[]        @relation(name: "FromUserRelation")
+  receivedTransfers  P2PTransfer[]        @relation(name: "ToUserRelation")
+  TransactionHistory TransactionHistory[]
+}
+
+model Balance {
+  id        Int      @id @default(autoincrement())
+  userId    Int      @unique // One-to-one: each user has exactly one balance
+  amount    String
+  bankName  String
+  currency  String   @default("INR")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // One-to-one relationship back to User
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model P2PTransfer {
+  id           Int            @id @default(autoincrement())
+  amount       String
+  timestamp    DateTime       @default(now())
+  status       TransferStatus @default(PENDING)
+  fromUserId   Int
+  fromUser     User           @relation(name: "FromUserRelation", fields: [fromUserId], references: [id])
+  toUserId     Int
+  toUser       User           @relation(name: "ToUserRelation", fields: [toUserId], references: [id])
+  description  String?
+  senderName   String
+  receiverName String
+
+  @@index([fromUserId])
+  @@index([toUserId])
+  @@index([timestamp])
+}
+
+model OnRampTransaction {
+  id         Int      @id @default(autoincrement())
+  userId     Int
+  token      String   @unique
+  amount     String
+  processing Status
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  user       User     @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([createdAt])
+}
+
+model TransactionHistory {
+  id              Int             @id @default(autoincrement())
+  userId          Int
+  amount          String
+  transactionType TransactionType
+  entryType       EntryType
+  description     String?
+  balanceBefore   String
+  balanceAfter    String
+  referenceId     String? // Reference to P2PTransfer or OnRampTransaction
+  createdAt       DateTime        @default(now())
+  user            User            @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([createdAt])
+  @@index([referenceId])
+}
+
+enum Status {
+  PROCESSING
+  SUCCESS
+}
+
+enum TransactionType {
+  TRANSFER_IN
+  TRANSFER_OUT
+  ON_RAMP
+  P2P_TRANSFER
+}
+
+enum EntryType {
+  CREDIT
+  DEBIT
+}
+
+enum TransferStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  CANCELLED
+}

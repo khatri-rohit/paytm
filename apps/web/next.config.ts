@@ -1,6 +1,8 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  // Next.js 15: use serverExternalPackages instead of experimental.serverComponentsExternalPackages
+  serverExternalPackages: ["@prisma/client"],
   webpack(config) {
     config.snapshot = { managedPaths: [] };
     config.watchOptions = {

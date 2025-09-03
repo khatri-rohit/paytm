@@ -1,0 +1,4 @@
+{
+    "buildCommand": "turbo run db:generate && turbo run build --filter=web",
+    "installCommand": "npm install && npm run db:generate"
+}
