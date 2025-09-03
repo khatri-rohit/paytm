@@ -1,4 +1,5 @@
-import { PrismaClient } from "@prisma/client";
+// Import the generated Prisma client directly to avoid @prisma/client init issues during build
+import { PrismaClient } from "./generated/prisma/index.js";
 
 const globalForPrisma = global as unknown as { prisma: PrismaClient; };
 

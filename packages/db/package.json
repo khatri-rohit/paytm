@@ -2,18 +2,20 @@
   "name": "@repo/db",
   "version": "1.0.0",
   "type": "module",
-  "main": "dist/index.js",
+  "main": "src/index.ts",
   "types": "dist/index.d.ts",
+  "prisma": {
+    "schema": "prisma/schema.prisma"
+  },
   "exports": {
     ".": "./src/index.ts"
   },
   "scripts": {
     "db:generate": "prisma generate",
-    "db:migrate": "prisma migrate dev --skip-generate",
-    "db:deploy": "prisma migrate deploy",
-    "db:seed": "node prisma/seed.mjs",
     "db:push": "prisma db push",
-    "postinstall": "prisma generate"
+    "db:migrate": "prisma migrate dev --name init",
+    "db:deploy": "prisma migrate deploy",
+    "db:seed": "node prisma/seed.mjs"
   },
   "license": "ISC",
   "dependencies": {
