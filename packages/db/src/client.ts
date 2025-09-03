@@ -1,9 +1,15 @@
-// Import the generated Prisma client directly to avoid @prisma/client init issues during build
-import { PrismaClient } from "./generated/prisma/index.js";
+import { PrismaClient } from './generated/prisma/index.js';
 
-const globalForPrisma = global as unknown as { prisma: PrismaClient; };
+const globalForPrisma = global as unknown as {
+    prisma: PrismaClient | undefined;
+};
 
 export const prisma =
-    globalForPrisma.prisma || new PrismaClient();
+    globalForPrisma.prisma ??
+    new PrismaClient({
+        log: ['error', 'warn'], // optional: can enable ['query'] in dev
+    });
 
-if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;
+if (process.env.NODE_ENV !== 'production') {
+    globalForPrisma.prisma = prisma;
+}

@@ -1,8 +1,8 @@
 generator client {
   provider      = "prisma-client-js"
-  // Generate the client into the package source folder so consumers can import "./generated/prisma"
+  // Generate the client into the package source folder so @repo/db can import it directly
   // The path here is relative to this schema file (packages/db/prisma/)
-  output        = "../node_modules/.prisma/client" // keep inside package
+  output        = "../src/generated/prisma"
   binaryTargets = ["native", "rhel-openssl-1.0.x", "rhel-openssl-3.0.x"]
 }
 
